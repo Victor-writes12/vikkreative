@@ -27,7 +27,7 @@ window.ICONS = {
   design3d: 'fa-cube',
 }
 
-// 3) CONTENT: shown until the admin has its own content. Edit freely.
+// 3) 
 // The summaries, descriptions and delivery times of the projects below are starter text. Replace them in the admin.
 const KIND = {
   'Brand identity': {
