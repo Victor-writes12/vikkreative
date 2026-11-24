@@ -135,7 +135,7 @@
     return `<div class="ad-bar"><h1 class="ad-h">${e.id ? 'Edit project' : 'New project'}</h1><button class="ab" data-act="cancel">Back to projects</button></div>
 <form id="pf" class="ad-form" novalidate>
 <section class="ad-sec"><h3>Basic details</h3>${field('Title', input('title', e.title, 'required maxlength="80"'))}
-${field('Page address', input('slug', e.slug, 'maxlength="60" autocapitalize="off"'), 'Used in the link: yoursite.com/project?p=this-part. Changing it later breaks old links.')}
+${field('Page address', input('slug', e.slug, 'maxlength="60" autocapitalize="off"'), 'Page address')}
 ${field('Category', input('category', e.category, 'list="cats" maxlength="60"') + `<datalist id="cats">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>`, 'Separate several with commas.')}
 ${field('Short summary', area('summary', e.summary, 2, 'maxlength="220"'))}
 ${field('Full description', area('description', e.description, 9), 'Leave a blank line between paragraphs.')}
