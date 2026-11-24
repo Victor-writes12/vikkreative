@@ -26,10 +26,10 @@
   const S = { user: null, view: 'overview', projects: [], site: {}, edit: null, lists: null, imgs: null, loading: false }
   const NAV = [['overview', 'Overview', 'fa-gauge'], ['projects', 'Projects', 'fa-layer-group'], ['about', 'About', 'fa-user'], ['content', 'Content', 'fa-sliders']]
   const LISTS = {
-    tools: { title: 'Tools and skills (the moving strip)', note: 'Pick a logo or an icon for each one. Letters only shows the first two letters of the name instead.', add: 'Add tool', blank: () => ({ name: '', logo: 'none' }), fields: [['name', 'Name', 'input'], ['logo', 'Logo', 'logo']], label: (x) => x.name },
+    tools: { title: 'Tools and skills (the moving strip)', add: 'Add tool', blank: () => ({ name: '', logo: 'none' }), fields: [['name', 'Name', 'input'], ['logo', 'Logo', 'logo']], label: (x) => x.name },
     services: { title: 'Services', add: 'Add service', blank: () => ({ title: '', text: '' }), fields: [['title', 'Title', 'input'], ['text', 'Description', 'textarea']], label: (x) => x.title },
     process: { title: 'How I work (steps)', add: 'Add step', blank: () => ({ title: '', text: '' }), fields: [['title', 'Title', 'input'], ['text', 'Description', 'textarea']], label: (x) => x.title },
-    testimonials: { title: 'Testimonials', note: 'The section stays hidden on the site until there is at least one.', add: 'Add testimonial', photo: true, blank: () => ({ photo: '', quote: '', name: '', role: '' }), fields: [['quote', 'Quote', 'textarea'], ['name', 'Name', 'input'], ['role', 'Role and company', 'input']], label: (x) => x.name || x.quote },
+    testimonials: { title: 'Testimonials', add: 'Add testimonial', photo: true, blank: () => ({ photo: '', quote: '', name: '', role: '' }), fields: [['quote', 'Quote', 'textarea'], ['name', 'Name', 'input'], ['role', 'Role and company', 'input']], label: (x) => x.name || x.quote },
   }
   const autoLogo = (name = '') => { const k = name.toLowerCase().replace(/[^a-z]/g, ''); return LOGOS[k] || ICONS[k] ? k : '' }
 
@@ -114,16 +114,19 @@
 <main class="ad-main">${inner}</main></div></div>`
   }
   function overview() {
-    const pub = S.projects.filter((p) => p.published).length
-    return `<div class="ad-bar"><div><h1 class="ad-h">Overview</h1><p>A quick look at your portfolio.</p></div></div>
-<div class="ad-stats"><div class="ad-stat r"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><div><b>${S.projects.length}</b><span>Projects</span></div></div><div class="ad-stat g"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><b>${pub}</b><span>Published</span></div></div><div class="ad-stat y"><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i><div><b>${S.projects.length - pub}</b><span>Drafts</span></div></div></div>
-<div class="ad-card"><h2 class="ad-h2">Quick actions</h2><div class="ad-actions"><button class="ab pri" data-act="new"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add project</button><button class="ab" data-act="nav" data-v="about"><i class="fa-solid fa-user" aria-hidden="true"></i> Edit about</button><button class="ab" data-act="sitemap"><i class="fa-solid fa-sitemap" aria-hidden="true"></i> Download sitemap.xml</button></div></div>
-<div class="ad-card"><h2 class="ad-h2">Good to know</h2><p class="ad-mut">Changes go live on the website as soon as you save, no rebuild needed. After adding or removing projects, download a fresh sitemap.xml and replace the one in the website folder so search engines see the new pages.</p></div>`
+    const pub = S.projects.filter((p) => p.published).length, recent = S.projects.slice(0, 5)
+    const rows = recent.length
+      ? `<ul class="ad-list">${recent.map((p) => `<li class="ad-item"><img class="ad-th" src="${esc(imgSrc(p.cover_url))}" alt=""><div class="ad-meta"><b>${esc(p.title)}</b><span>${esc(p.category || '')}</span>${p.published ? '<em class="badge ok">Live</em>' : '<em class="badge">Draft</em>'}</div><div class="ad-ctl"><button class="ab sm" data-act="edit" data-id="${esc(p.id)}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</button></div></li>`).join('')}</ul>`
+      : `<div class="ad-empty"><p class="ad-mut">No projects yet.</p><button class="ab pri" data-act="new">Add your first project</button></div>`
+    return `<div class="ad-bar"><div><h1 class="ad-h">Overview</h1></div><div class="ad-actions"><button class="ab" data-act="nav" data-v="about"><i class="fa-solid fa-user" aria-hidden="true"></i> Edit about</button><button class="ab pri" data-act="new"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add project</button></div></div>
+<div class="ad-stats"><div class="ad-stat r"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><div><b>${S.projects.length}</b><span>Projects</span></div></div><div class="ad-stat g"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><div><b>${pub}</b><span>Live</span></div></div><div class="ad-stat y"><i class="fa-solid fa-file-pen" aria-hidden="true"></i><div><b>${S.projects.length - pub}</b><span>Drafts</span></div></div></div>
+<div class="ad-bar" style="margin-top:2rem"><h2 class="ad-h2" style="margin:0">Recent projects</h2><button class="ab sm" data-act="nav" data-v="projects">View all</button></div>${rows}
+`
   }
   function projects() {
     if (S.edit) return projectForm()
     const list = S.projects.length
-      ? `<ul class="ad-list">${S.projects.map((p, i) => `<li class="ad-item"><img class="ad-th" src="${esc(imgSrc(p.cover_url))}" alt=""><div class="ad-meta"><b>${esc(p.title)}</b><span>${esc([p.category, p.delivery_time].filter(Boolean).join(', '))}</span>${p.published ? '<em class="badge ok">Live</em>' : '<em class="badge">Draft</em>'}</div><div class="ad-ctl"><button class="ab icon sm" data-act="up" data-i="${i}" aria-label="Move up"${i === 0 ? ' disabled' : ''}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="ab icon sm" data-act="down" data-i="${i}" aria-label="Move down"${i === S.projects.length - 1 ? ' disabled' : ''}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="ab sm" data-act="edit" data-id="${esc(p.id)}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</button><button class="ab dan icon sm" data-act="del" data-id="${esc(p.id)}" aria-label="Delete ${esc(p.title)}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></li>`).join('')}</ul>`
+      ? `<ul class="ad-list">${S.projects.map((p, i) => `<li class="ad-item"><img class="ad-th" src="${esc(imgSrc(p.cover_url))}" alt=""><div class="ad-meta"><b>${esc(p.title)}</b><span>${esc(p.category || '')}</span>${p.published ? '<em class="badge ok">Live</em>' : '<em class="badge">Draft</em>'}</div><div class="ad-ctl"><button class="ab icon sm" data-act="up" data-i="${i}" aria-label="Move up"${i === 0 ? ' disabled' : ''}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="ab icon sm" data-act="down" data-i="${i}" aria-label="Move down"${i === S.projects.length - 1 ? ' disabled' : ''}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="ab sm" data-act="edit" data-id="${esc(p.id)}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Edit</button><button class="ab dan icon sm" data-act="del" data-id="${esc(p.id)}" aria-label="Delete ${esc(p.title)}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></li>`).join('')}</ul>`
       : `<div class="ad-empty"><p class="ad-mut">No projects in the database yet. The website is currently showing the ${D.projects.length} starter projects from js/content.js.</p><button class="ab pri" data-act="import">Import the ${D.projects.length} current projects</button><button class="ab" data-act="new">Add a new project instead</button></div>`
     return `<div class="ad-bar"><h1 class="ad-h">Projects</h1><button class="ab pri" data-act="new"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add project</button></div>${list}`
   }
@@ -131,28 +134,25 @@
     const e = S.edit, cats = [...new Set(['Brand identity', 'Web design', 'Mobile app', 'E-commerce', 'Product design', ...S.projects.map((p) => p.category).filter(Boolean)])]
     return `<div class="ad-bar"><h1 class="ad-h">${e.id ? 'Edit project' : 'New project'}</h1><button class="ab" data-act="cancel">Back to projects</button></div>
 <form id="pf" class="ad-form" novalidate>
-<section class="ad-sec"><h3>Basic details</h3><p class="ad-sub">The title, category and summary shown on the home page card.</p>
-${field('Title', input('title', e.title, 'required maxlength="80"'))}
+<section class="ad-sec"><h3>Basic details</h3>${field('Title', input('title', e.title, 'required maxlength="80"'))}
 ${field('Page address', input('slug', e.slug, 'maxlength="60" autocapitalize="off"'), 'Used in the link: yoursite.com/project?p=this-part. Changing it later breaks old links.')}
-<div class="ad-2">${field('Category', input('category', e.category, 'list="cats" maxlength="60"') + `<datalist id="cats">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>`, 'Shown as tags. Separate several with commas, for example: UI/UX, Web design')}${field('Delivery time', input('delivery_time', e.delivery_time, 'maxlength="40" placeholder="e.g. 3 to 4 weeks"'), 'Shown on the card and the project page.')}</div>
-${field('Short summary', area('summary', e.summary, 2, 'maxlength="220"'), 'One or two sentences. Shown on the project card.')}
+${field('Category', input('category', e.category, 'list="cats" maxlength="60"') + `<datalist id="cats">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>`, 'Separate several with commas.')}
+${field('Short summary', area('summary', e.summary, 2, 'maxlength="220"'))}
 ${field('Full description', area('description', e.description, 9), 'Leave a blank line between paragraphs.')}
 <div class="ad-3">${field('Client', input('client', e.client, 'maxlength="60"'))}${field('Your role', input('role', e.role, 'maxlength="60"'))}${field('Year', input('year', e.year, 'maxlength="9"'))}</div>
-${field('Tools used', input('tools', (e.tools || []).join(', ')), 'Separate with commas. Figma, Photoshop, Illustrator, After Effects, Blender, Lightroom, WordPress and CorelDRAW show their logo on the project page automatically.')}
+${field('Tools used', input('tools', (e.tools || []).join(', ')), 'Separate with commas.')}
 </section>
-<section class="ad-sec"><h3>Case study</h3><p class="ad-sub">The story behind the project. Empty fields are hidden on the website.</p>
-${field('The problem', area('problem', e.problem, 4), 'What was wrong or missing before this project. Leave a blank line between paragraphs.')}
-${field('The approach', area('approach', e.approach, 4), 'How you solved it.')}
+<section class="ad-sec"><h3>Case study</h3>${field('The problem', area('problem', e.problem, 4))}
+${field('The approach', area('approach', e.approach, 4))}
 ${field('Process steps (optional)', area('process', e.process, 5, 'placeholder="Research | Interviewed 8 riders&#10;Wireframes | Mapped the booking flow"'), 'One step per line. Write the step name, then a bar |, then a short description.')}
-${field('Results and impact (optional)', area('results', e.results, 3), 'Outcomes, numbers or the launch result.')}
+${field('Results and impact (optional)', area('results', e.results, 3))}
 ${field('Client quote (optional)', area('quote', e.quote, 2, 'maxlength="300"'))}
 <div class="ad-2">${field('Quote by', input('quote_name', e.quote_name, 'maxlength="60"'))}${field('Their role', input('quote_role', e.quote_role, 'maxlength="60"'))}</div>
-${field('Case study link (optional)', input('link', e.link, 'type="url" placeholder="https://"'), 'Shows a View case study button, for example a Behance link.')}
+${field('Case study link (optional)', input('link', e.link, 'type="url" placeholder="https://"'))}
 </section>
-<section class="ad-sec"><h3>Media</h3><p class="ad-sub">The cover, the preview video, wireframes, mockups and gallery.</p>
-${uploader('Cover image', 'prev-cover', 'cover')}<p class="ad-mut" style="margin:-.5rem 0 1.1rem">Landscape, about 4:3, works best. Images are compressed automatically.</p>
-${vuploader('Preview video (optional)', 'prev-vid', 'video')}<p class="ad-mut" style="margin:-.5rem 0 1.1rem">MP4 or WebM, no sound needed, under 40 MB. A short 10 to 20 second clip at 1280 wide is ideal.</p>
-${uploader('Wireframes (optional)', 'prev-wire', 'wireframes', true)}<p class="ad-mut" style="margin:-.5rem 0 1.1rem">Screens showing the layout and flow before the visual design. Upload them in the order they should appear.</p>
+<section class="ad-sec"><h3>Media</h3>${uploader('Cover image', 'prev-cover', 'cover')}<p class="ad-mut" style="margin:-.5rem 0 1.1rem">Landscape, about 4:3.</p>
+${vuploader('Preview video (optional)', 'prev-vid', 'video')}<p class="ad-mut" style="margin:-.5rem 0 1.1rem">MP4 or WebM, under 40 MB.</p>
+${uploader('Wireframes (optional)', 'prev-wire', 'wireframes', true)}
 ${uploader('Mockups (optional)', 'prev-mock', 'mockups', true)}
 ${uploader('Gallery images (optional)', 'prev-gal', 'gallery', true)}
 </section>
@@ -163,24 +163,20 @@ ${uploader('Gallery images (optional)', 'prev-gal', 'gallery', true)}
     if (!S.imgs) S.imgs = { portraitSrc: g('portraitSrc'), heroSrc: g('heroSrc') }
     return `<div class="ad-bar"><h1 class="ad-h">About and home page</h1></div>
 <form id="af" class="ad-form" novalidate>
-<section class="ad-sec"><h3>Profile</h3><p class="ad-sub">Your name, role and contact details.</p>
-<div class="ad-2">${field('Full name', input('name', g('name')))}${field('Brand name', input('brand', g('brand')))}</div>
+<section class="ad-sec"><h3>Profile</h3><div class="ad-2">${field('Full name', input('name', g('name')))}${field('Brand name', input('brand', g('brand')))}</div>
 <div class="ad-2">${field('Role', input('role', g('role')))}${field('Public email', input('email', g('email'), 'type="email"'))}</div>
-<div class="ad-2">${field('Location', input('location', g('location'), 'maxlength="80"'), 'Shown on your photo. Add several places separated by commas and they roll one after another, for example: Lagos, Abuja, Dubai.')}${field('Phone (optional)', input('phone', g('phone'), 'type="tel" maxlength="30"'), 'Shown next to your email on the home page.')}</div>
+<div class="ad-2">${field('Location', input('location', g('location'), 'maxlength="80"'), 'Separate several places with commas and they roll one after another.')}${field('Phone (optional)', input('phone', g('phone'), 'type="tel" maxlength="30"'))}</div>
 </section>
-<section class="ad-sec"><h3>Home page</h3><p class="ad-sub">What visitors see first.</p>
-${field('Titles under your name', input('roles', g('roles'), 'maxlength="120"'), 'Separate with commas, for example: UI/UX Designer, Graphic Designer, Motion Designer')}
-${field('Home page line', input('heroTitle', g('heroTitle')), 'The short sentence under your titles.')}
+<section class="ad-sec"><h3>Home page</h3>${field('Titles under your name', input('roles', g('roles'), 'maxlength="120"'), 'Separate with commas.')}
+${field('Home page line', input('heroTitle', g('heroTitle')))}
 ${field('Footer text', area('heroText', g('heroText'), 3))}
 </section>
-<section class="ad-sec"><h3>About page</h3><p class="ad-sub">The text on your About page.</p>
-${field('About (short summary)', area('about', g('about'), 5), 'Used on the About page if the story below is empty.')}
+<section class="ad-sec"><h3>About page</h3>${field('About (short summary)', area('about', g('about'), 5))}
 ${field('About page story', area('aboutLong', g('aboutLong'), 10), 'Leave a blank line between paragraphs.')}
 </section>
-<section class="ad-sec"><h3>Pictures</h3><p class="ad-sub">Your photo and the home page picture.</p>
-${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home page picture (the big one at the top). Uploading one replaces the background video.', 'prev-heroSrc', 'heroSrc')}
+<section class="ad-sec"><h3>Pictures</h3>${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home page picture (the big one at the top). Uploading one replaces the background video.', 'prev-heroSrc', 'heroSrc')}
 </section>
-<div class="ad-foot"><span class="ad-mut">Changes go live as soon as you save.</span><div class="btns"><button class="ab pri" type="submit">Save changes</button></div></div></form>`
+<div class="ad-foot"><span></span><div class="btns"><button class="ab pri" type="submit">Save changes</button></div></div></form>`
   }
   function content() {
     if (!S.lists) {
@@ -189,7 +185,7 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
       S.lists.tools.forEach((t) => { if (!t.logo) t.logo = autoLogo(t.name) || 'none' })
     }
     const logoSel = (l, i, v) => `<select data-l="${l}" data-i="${i}" data-k="logo"><option value="none"${v === 'none' ? ' selected' : ''}>Letters only</option><optgroup label="Tool logos">${Object.keys(LOGOS).map((k) => `<option value="${k}"${v === k ? ' selected' : ''}>${cap(k)}</option>`).join('')}</optgroup><optgroup label="Skill icons">${Object.keys(ICONS).map((k) => `<option value="${k}"${v === k ? ' selected' : ''}>${cap(k)}</option>`).join('')}</optgroup></select>`
-    return `<div class="ad-bar"><h1 class="ad-h">Content</h1></div>` + Object.entries(LISTS).map(([l, cfg], n) => `<details class="ad-det"${n === 0 ? ' open' : ''}><summary>${cfg.title}<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><div>${cfg.note ? `<p class="ad-mut" style="margin-bottom:1rem">${cfg.note}</p>` : ''}${S.lists[l].map((x, i) => `<div class="ad-rep">${cfg.photo ? `<div class="ad-up"><b>Client picture or logo</b><div class="ad-prev">${prev(x.photo)}</div><label class="ad-file"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Choose picture<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-up="lphoto" data-l="${l}" data-i="${i}"></label>${x.photo ? `<button class="ab sm" type="button" data-act="l-photo-rm" data-l="${l}" data-i="${i}">Remove picture</button>` : ''}</div><p class="ad-mut" style="margin:-.5rem 0 1.1rem">PNG, JPG, WebP or SVG. Square works best (400 x 400 pixels for a picture). A logo should sit in the middle with space around it. Other shapes get cropped. Optional.</p>` : ''}${cfg.fields.map(([k, lab, t]) => field(lab, t === 'textarea' ? `<textarea rows="3" data-l="${l}" data-i="${i}" data-k="${k}">${esc(x[k])}</textarea>` : t === 'logo' ? logoSel(l, i, x[k] || 'none') : `<input data-l="${l}" data-i="${i}" data-k="${k}" value="${esc(x[k])}">`)).join('')}<div class="ad-repctl"><button class="ab icon sm" type="button" data-act="l-up" data-l="${l}" data-i="${i}" aria-label="Move up"${i === 0 ? ' disabled' : ''}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="ab icon sm" type="button" data-act="l-down" data-l="${l}" data-i="${i}" aria-label="Move down"${i === S.lists[l].length - 1 ? ' disabled' : ''}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="ab dan icon sm" type="button" data-act="l-del" data-l="${l}" data-i="${i}" aria-label="Remove"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></div>`).join('')}<button class="ab sm" type="button" data-act="l-add" data-l="${l}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ${cfg.add}</button></div></details>`).join('') + `<div class="ad-foot"><button class="ab pri" data-act="save-content">Save content</button></div>`
+    return `<div class="ad-bar"><h1 class="ad-h">Content</h1></div>` + Object.entries(LISTS).map(([l, cfg], n) => `<details class="ad-det"${n === 0 ? ' open' : ''}><summary>${cfg.title}<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><div>${cfg.note ? `<p class="ad-mut" style="margin-bottom:1rem">${cfg.note}</p>` : ''}${S.lists[l].map((x, i) => `<div class="ad-rep">${cfg.photo ? `<div class="ad-up"><b>Client picture or logo</b><div class="ad-prev">${prev(x.photo)}</div><label class="ad-file"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Choose picture<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-up="lphoto" data-l="${l}" data-i="${i}"></label>${x.photo ? `<button class="ab sm" type="button" data-act="l-photo-rm" data-l="${l}" data-i="${i}">Remove picture</button>` : ''}</div><p class="ad-mut" style="margin:-.5rem 0 1.1rem">PNG, JPG, WebP or SVG. Square, about 400 x 400 pixels.</p>` : ''}${cfg.fields.map(([k, lab, t]) => field(lab, t === 'textarea' ? `<textarea rows="3" data-l="${l}" data-i="${i}" data-k="${k}">${esc(x[k])}</textarea>` : t === 'logo' ? logoSel(l, i, x[k] || 'none') : `<input data-l="${l}" data-i="${i}" data-k="${k}" value="${esc(x[k])}">`)).join('')}<div class="ad-repctl"><button class="ab icon sm" type="button" data-act="l-up" data-l="${l}" data-i="${i}" aria-label="Move up"${i === 0 ? ' disabled' : ''}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="ab icon sm" type="button" data-act="l-down" data-l="${l}" data-i="${i}" aria-label="Move down"${i === S.lists[l].length - 1 ? ' disabled' : ''}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="ab dan icon sm" type="button" data-act="l-del" data-l="${l}" data-i="${i}" aria-label="Remove"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></div>`).join('')}<button class="ab sm" type="button" data-act="l-add" data-l="${l}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ${cfg.add}</button></div></details>`).join('') + `<div class="ad-foot"><button class="ab pri" data-act="save-content">Save content</button></div>`
   }
 
   function paint() {
@@ -215,8 +211,8 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
     nav: (b) => { S.view = b.dataset.v; S.edit = null; paint(); scrollTo(0, 0) },
     logout: () => sb.auth.signOut(),
     pw: (b) => { const i = b.parentElement.querySelector('input'), show = i.type === 'password'; i.type = show ? 'text' : 'password'; b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); b.innerHTML = `<i class="fa-regular ${show ? 'fa-eye-slash' : 'fa-eye'}" aria-hidden="true"></i>` },
-    new: () => { S.view = 'projects'; S.edit = { slug: '', title: '', category: '', summary: '', description: '', client: '', role: '', year: '', delivery_time: '', tools: [], link: '', cover_url: '', gallery: [], video_url: '', mockups: [], wireframes: [], problem: '', approach: '', results: '', process: '', quote: '', quote_name: '', quote_role: '', published: true, fresh: true }; paint(); scrollTo(0, 0) },
-    edit: (b) => { const p = S.projects.find((x) => x.id === b.dataset.id); if (p) { S.edit = { ...p, tools: [...(p.tools || [])], gallery: [...(p.gallery || [])], mockups: [...(p.mockups || [])], wireframes: [...(p.wireframes || [])], video_url: p.video_url || '', problem: p.problem || '', approach: p.approach || '', results: p.results || '', process: p.process || '', quote: p.quote || '', quote_name: p.quote_name || '', quote_role: p.quote_role || '' }; paint(); scrollTo(0, 0) } },
+    new: () => { S.view = 'projects'; S.edit = { slug: '', title: '', category: '', summary: '', description: '', client: '', role: '', year: '', tools: [], link: '', cover_url: '', gallery: [], video_url: '', mockups: [], wireframes: [], problem: '', approach: '', results: '', process: '', quote: '', quote_name: '', quote_role: '', published: true, fresh: true }; paint(); scrollTo(0, 0) },
+    edit: (b) => { const p = S.projects.find((x) => x.id === b.dataset.id); if (p) { S.view = 'projects'; S.edit = { ...p, tools: [...(p.tools || [])], gallery: [...(p.gallery || [])], mockups: [...(p.mockups || [])], wireframes: [...(p.wireframes || [])], video_url: p.video_url || '', problem: p.problem || '', approach: p.approach || '', results: p.results || '', process: p.process || '', quote: p.quote || '', quote_name: p.quote_name || '', quote_role: p.quote_role || '' }; paint(); scrollTo(0, 0) } },
     cancel: () => { S.edit = null; paint() },
     'rm-gal': (b) => { S.edit.gallery.splice(+b.dataset.i, 1); setGallery() },
     'rm-wire': (b) => { S.edit.wireframes.splice(+b.dataset.i, 1); setWire() },
@@ -229,11 +225,10 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
     },
     up: (b) => move(+b.dataset.i, -1), down: (b) => move(+b.dataset.i, 1),
     import: (b) => withBusy(b, async () => {
-      const rows = D.projects.map((p, i) => ({ slug: p.slug, title: p.title, category: p.category, summary: p.summary, description: p.description, client: p.client, role: p.role, year: p.year, delivery_time: p.deliveryTime, tools: p.tools, link: p.link, cover_url: p.src, gallery: p.gallery, sort_order: i + 1, published: true }))
+      const rows = D.projects.map((p, i) => ({ slug: p.slug, title: p.title, category: p.category, summary: p.summary, description: p.description, client: p.client, role: p.role, year: p.year, tools: p.tools, link: p.link, cover_url: p.src, gallery: p.gallery, sort_order: i + 1, published: true }))
       const r = await sb.from('projects').insert(rows); if (r.error) throw r.error
       await loadProjects(); paint(); toast('Projects imported')
     }),
-    sitemap: () => sitemap(),
     'l-add': (b) => { const l = b.dataset.l; S.lists[l].push(LISTS[l].blank()); paint() },
     'l-photo-rm': (b) => { S.lists[b.dataset.l][+b.dataset.i].photo = ''; paint(); document.querySelectorAll('.ad-det')[3]?.setAttribute('open', '') },
     'l-del': (b) => { S.lists[b.dataset.l].splice(+b.dataset.i, 1); paint() },
@@ -260,16 +255,6 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
     const a = S.lists[b.dataset.l], i = +b.dataset.i, j = i + d
     if (j < 0 || j >= a.length) return
     ;[a[i], a[j]] = [a[j], a[i]]; paint()
-  }
-  function sitemap() {
-    let base = (C.siteUrl || '').replace(/\/+$/, '')
-    if (!base) base = (prompt('Enter your live website address, for example https://vikkreative.com') || '').trim().replace(/\/+$/, '')
-    if (!isUrl(base)) return toast('A valid website address is needed to make the sitemap.', true)
-    const day = new Date().toISOString().slice(0, 10)
-    const urls = [['', '1.0'], ['about', '0.7'], ...S.projects.filter((p) => p.published).map((p) => [`project?p=${encodeURIComponent(p.slug)}`, '0.8'])]
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u, pr]) => `  <url><loc>${esc(base + '/' + u)}</loc><lastmod>${day}</lastmod><priority>${pr}</priority></url>`).join('\n')}\n</urlset>\n`
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([xml], { type: 'application/xml' })); a.download = 'sitemap.xml'; document.body.append(a); a.click(); a.remove()
-    toast('sitemap.xml downloaded. Replace the file in your website folder.')
   }
   async function onFile(inp) {
     const t = inp.dataset.up, files = [...inp.files]
@@ -315,7 +300,7 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
   }
   async function saveProject(f) {
     const v = (n) => f.elements[n].value.trim(), e = S.edit
-    const row = { title: v('title'), slug: slugify(v('slug') || v('title')), category: v('category'), summary: v('summary'), description: v('description'), client: v('client'), role: v('role'), year: v('year'), delivery_time: v('delivery_time'), tools: v('tools').split(',').map((s) => s.trim()).filter(Boolean), link: v('link'), cover_url: e.cover_url || '', gallery: e.gallery, video_url: e.video_url || '', mockups: e.mockups || [], wireframes: e.wireframes || [], problem: v('problem'), approach: v('approach'), process: v('process'), results: v('results'), quote: v('quote'), quote_name: v('quote_name'), quote_role: v('quote_role'), published: f.elements.published.checked, updated_at: new Date().toISOString() }
+    const row = { title: v('title'), slug: slugify(v('slug') || v('title')), category: v('category'), summary: v('summary'), description: v('description'), client: v('client'), role: v('role'), year: v('year'), tools: v('tools').split(',').map((s) => s.trim()).filter(Boolean), link: v('link'), cover_url: e.cover_url || '', gallery: e.gallery, video_url: e.video_url || '', mockups: e.mockups || [], wireframes: e.wireframes || [], problem: v('problem'), approach: v('approach'), process: v('process'), results: v('results'), quote: v('quote'), quote_name: v('quote_name'), quote_role: v('quote_role'), published: f.elements.published.checked, updated_at: new Date().toISOString() }
     if (!row.title) throw new Error('Add a title.')
     if (!row.slug) throw new Error('Add a page address.')
     if (!row.cover_url) throw new Error('Add a cover image.')

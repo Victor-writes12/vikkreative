@@ -124,8 +124,7 @@
     set('#story', paras(d.aboutLong || d.about).map((t) => `<p class="lead story">${esc(t)}</p>`).join(''))
     const q = $('#testimonials')
     if (q) { q.hidden = !d.testimonials.length; set('#quotes', d.testimonials.map((t) => `<figure class="quote"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><blockquote>${esc(t.quote)}</blockquote><figcaption>${t.photo ? `<img class="q-photo" src="${esc(t.photo)}" alt="${esc(t.name)}" loading="lazy" width="72" height="72">` : ''}<div><b>${esc(t.name)}</b><span>${esc(t.role)}</span></div></figcaption></figure>`).join('')) }
-    const qn = $('#qcount'), qc = $('#qctl'); if (qc) qc.hidden = d.testimonials.length < 2
-    if (qn) qn.textContent = ''
+    const qc = $('#qctl'); if (qc) qc.hidden = d.testimonials.length < 2
     if ($('#p-main')) renderProject(d, ready)
     fixLinks()
   }
@@ -140,13 +139,12 @@
     set('#p-cat', pills(p.category))
     $('#p-title').textContent = p.title
     $('#p-summary').textContent = p.summary; $('#p-summary').hidden = !p.summary
-    const facts = [['Delivery time', p.deliveryTime, 1], ['Client', p.client], ['Role', p.role], ['Year', p.year]].filter((f) => f[1])
+    const facts = [['Client', p.client], ['Role', p.role], ['Year', p.year]].filter((f) => f[1])
     set('#p-facts', facts.map(([k, v, hl]) => `<div class="fact${hl ? ' hl' : ''}"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join(''))
     $('#p-facts').hidden = !facts.length
     const cover = $('#p-cover')
     if (p.src) { cover.src = p.src; cover.alt = p.title; cover.style.viewTransitionName = vt(p.slug) }
     cover.parentElement.hidden = !p.src
-    $('#p-time').textContent = p.deliveryTime || 'Agreed in your free quote'
     const a = $('#p-link'); a.hidden = !isUrl(p.link); if (isUrl(p.link)) a.href = p.link
     const ps = paras(p.description)
     set('#p-desc', ps.length ? '<h2>About this project</h2>' + ps.map((t) => `<p class="lead">${esc(t)}</p>`).join('') : '')
@@ -196,7 +194,7 @@
     return { site: s[0]?.data, projects: pr }
   }
   const stepsOf = (t = '') => String(t).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const [a, ...b] = l.split('|'); return { title: a.trim(), text: b.join('|').trim() } })
-  const norm = (x) => ({ slug: x.slug, title: x.title, category: x.category || '', summary: x.summary || '', description: x.description || '', client: x.client || '', role: x.role || '', year: x.year || '', deliveryTime: x.delivery_time || '', tools: x.tools || [], link: x.link || '', src: x.cover_url || '', gallery: x.gallery || [], video: x.video_url || '', mockups: x.mockups || [], wireframes: x.wireframes || [], problem: x.problem || '', approach: x.approach || '', results: x.results || '', process: stepsOf(x.process), quote: x.quote || '', quoteName: x.quote_name || '', quoteRole: x.quote_role || '' })
+  const norm = (x) => ({ slug: x.slug, title: x.title, category: x.category || '', summary: x.summary || '', description: x.description || '', client: x.client || '', role: x.role || '', year: x.year || '', tools: x.tools || [], link: x.link || '', src: x.cover_url || '', gallery: x.gallery || [], video: x.video_url || '', mockups: x.mockups || [], wireframes: x.wireframes || [], problem: x.problem || '', approach: x.approach || '', results: x.results || '', process: stepsOf(x.process), quote: x.quote || '', quoteName: x.quote_name || '', quoteRole: x.quote_role || '' })
   const TEXT = ['name', 'brand', 'role', 'roles', 'location', 'phone', 'heroTitle', 'heroText', 'email', 'about', 'aboutLong', 'heroSrc', 'servicesSrc', 'contactSrc', 'portraitSrc']
   const LISTS = ['process', 'testimonials', 'services', 'tools']
   function merge(res) {
@@ -229,19 +227,29 @@
       .from('.dock', { y: 110, opacity: 0, duration: 1, ease: 'back.out(1.4)' }, 1.3)
   }
 
-  // Testimonials slider: swipe on touch, drag with the mouse, or use the arrows
+  // Testimonials slider: swipe on touch, drag with the mouse, use the arrows, or let it advance by itself
   ;(function () {
     const tr = $('#quotes'); if (!tr) return
+    const AUTO_MS = 5000
     const step = () => { const c = tr.querySelector('.quote'); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(tr).columnGap || 0) : tr.clientWidth }
-    const count = () => { const n = tr.children.length, i = Math.round(tr.scrollLeft / (step() || 1)), v = Math.max(1, Math.round(tr.clientWidth / (step() || 1))); const n2 = $('#qcount'); if (n2) n2.textContent = n > 1 ? `${Math.min(n, i + v)} / ${n}` : ''; document.querySelectorAll('.qbtn').forEach((b) => { b.disabled = +b.dataset.q < 0 ? tr.scrollLeft < 4 : tr.scrollLeft > tr.scrollWidth - tr.clientWidth - 4 }) }
-    document.addEventListener('click', (e) => { const b = e.target.closest?.('.qbtn'); if (b) tr.scrollBy({ left: +b.dataset.q * step(), behavior: 'smooth' }) })
-    tr.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); tr.scrollBy({ left: (e.key === 'ArrowRight' ? 1 : -1) * step(), behavior: 'smooth' }) } })
-    tr.addEventListener('scroll', count, { passive: true }); addEventListener('resize', count)
-    new MutationObserver(count).observe(tr, { childList: true }); setTimeout(count, 400)
+    const max = () => tr.scrollWidth - tr.clientWidth
+    const go = (dir) => {
+      if (dir > 0 && tr.scrollLeft >= max() - 4) tr.scrollTo({ left: 0, behavior: 'smooth' })
+      else if (dir < 0 && tr.scrollLeft <= 4) tr.scrollTo({ left: max(), behavior: 'smooth' })
+      else tr.scrollBy({ left: dir * step(), behavior: 'smooth' })
+    }
+    let hold = 0, hover = false, seen = false
+    const touch = () => { hold = Date.now() + AUTO_MS * 1.6 }
+    document.addEventListener('click', (e) => { const b = e.target.closest?.('.qbtn'); if (b) { touch(); go(+b.dataset.q) } })
+    tr.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); touch(); go(e.key === 'ArrowRight' ? 1 : -1) } })
+    tr.addEventListener('touchstart', touch, { passive: true })
+    tr.addEventListener('mouseenter', () => { hover = true }); tr.addEventListener('mouseleave', () => { hover = false })
     let down = null, moved = 0
-    tr.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; down = { x: e.clientX, l: tr.scrollLeft }; moved = 0; tr.classList.add('drag') })
+    tr.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; touch(); down = { x: e.clientX, l: tr.scrollLeft }; moved = 0; tr.classList.add('drag') })
     addEventListener('pointermove', (e) => { if (!down) return; moved = e.clientX - down.x; tr.scrollLeft = down.l - moved })
-    addEventListener('pointerup', () => { if (!down) return; down = null; tr.classList.remove('drag'); const s = step(); tr.scrollTo({ left: Math.round(tr.scrollLeft / s) * s, behavior: 'smooth' }) })
+    addEventListener('pointerup', () => { if (!down) return; down = null; tr.classList.remove('drag'); touch(); const s = step(); tr.scrollTo({ left: Math.round(tr.scrollLeft / s) * s, behavior: 'smooth' }) })
+    if ('IntersectionObserver' in window) new IntersectionObserver((en) => { seen = en[0].isIntersecting }).observe(tr); else seen = true
+    if (!reduced) setInterval(() => { if (!seen || hover || document.hidden || Date.now() < hold || max() < 8) return; go(1) }, AUTO_MS)
   })()
 
   function motion() {
