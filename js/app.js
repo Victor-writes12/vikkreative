@@ -116,14 +116,16 @@
     strips(d.projects)
     const groups = []
     d.projects.forEach((p) => { const c = list(p.category)[0] || 'More work'; let g = groups.find((x) => x.c === c); if (!g) groups.push((g = { c, items: [] })); g.items.push(p) })
-    set('#work-list', groups.map((g) => `<section class="cat" aria-label="${esc(g.c)}"><header class="cat-h" data-rv><h3>${esc(g.c)}</h3></header><div class="zgrid">${g.items.map(zcard).join('')}</div></section>`).join(''))
+    set('#work-list', `<div class="zgrid">${groups.flatMap((g) => g.items).map(zcard).join('')}</div>`)
     set('#cards', d.services.map((s) => `<article class="glass tilt"><div class="tilt-in"><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div></article>`).join(''))
     set('#foot-services', d.services.map((s) => `<li><a href="./#services">${esc(s.title)}</a></li>`).join(''))
     renderTools(d.tools)
     set('#steps', d.process.map((s) => `<li data-rv><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></li>`).join(''))
     set('#story', paras(d.aboutLong || d.about).map((t) => `<p class="lead story">${esc(t)}</p>`).join(''))
     const q = $('#testimonials')
-    if (q) { q.hidden = !d.testimonials.length; set('#quotes', d.testimonials.map((t) => `<figure class="quote"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><blockquote>${esc(t.quote)}</blockquote><figcaption><b>${esc(t.name)}</b><span>${esc(t.role)}</span></figcaption></figure>`).join('')) }
+    if (q) { q.hidden = !d.testimonials.length; set('#quotes', d.testimonials.map((t) => `<figure class="quote"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><blockquote>${esc(t.quote)}</blockquote><figcaption>${t.photo ? `<img class="q-photo" src="${esc(t.photo)}" alt="${esc(t.name)}" loading="lazy" width="72" height="72">` : ''}<div><b>${esc(t.name)}</b><span>${esc(t.role)}</span></div></figcaption></figure>`).join('')) }
+    const qn = $('#qcount'), qc = $('#qctl'); if (qc) qc.hidden = d.testimonials.length < 2
+    if (qn) qn.textContent = ''
     if ($('#p-main')) renderProject(d, ready)
     fixLinks()
   }
@@ -226,6 +228,22 @@
       .from('.strip', { opacity: 0, y: 40, duration: 1, stagger: 0.15 }, 1.2)
       .from('.dock', { y: 110, opacity: 0, duration: 1, ease: 'back.out(1.4)' }, 1.3)
   }
+
+  // Testimonials slider: swipe on touch, drag with the mouse, or use the arrows
+  ;(function () {
+    const tr = $('#quotes'); if (!tr) return
+    const step = () => { const c = tr.querySelector('.quote'); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(tr).columnGap || 0) : tr.clientWidth }
+    const count = () => { const n = tr.children.length, i = Math.round(tr.scrollLeft / (step() || 1)), v = Math.max(1, Math.round(tr.clientWidth / (step() || 1))); const n2 = $('#qcount'); if (n2) n2.textContent = n > 1 ? `${Math.min(n, i + v)} / ${n}` : ''; document.querySelectorAll('.qbtn').forEach((b) => { b.disabled = +b.dataset.q < 0 ? tr.scrollLeft < 4 : tr.scrollLeft > tr.scrollWidth - tr.clientWidth - 4 }) }
+    document.addEventListener('click', (e) => { const b = e.target.closest?.('.qbtn'); if (b) tr.scrollBy({ left: +b.dataset.q * step(), behavior: 'smooth' }) })
+    tr.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); tr.scrollBy({ left: (e.key === 'ArrowRight' ? 1 : -1) * step(), behavior: 'smooth' }) } })
+    tr.addEventListener('scroll', count, { passive: true }); addEventListener('resize', count)
+    new MutationObserver(count).observe(tr, { childList: true }); setTimeout(count, 400)
+    let down = null, moved = 0
+    tr.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; down = { x: e.clientX, l: tr.scrollLeft }; moved = 0; tr.classList.add('drag') })
+    addEventListener('pointermove', (e) => { if (!down) return; moved = e.clientX - down.x; tr.scrollLeft = down.l - moved })
+    addEventListener('pointerup', () => { if (!down) return; down = null; tr.classList.remove('drag'); const s = step(); tr.scrollTo({ left: Math.round(tr.scrollLeft / s) * s, behavior: 'smooth' }) })
+  })()
+
   function motion() {
     kill()
     const g = window.gsap
@@ -256,6 +274,17 @@
             g.to(b.map((e) => e.querySelector?.('.zc-img')).filter(Boolean), { clipPath: 'inset(0% 0% 0% 0% round 26px 0 0 0)', duration: 1.5, ease: 'expo.inOut', delay: 0.35, stagger: 0.18 })
           },
         })
+      }
+
+      // Testimonials: the cards arrive tilted and settle flat, and lean a little with the swipe
+      const qs = g.utils.toArray('#quotes .quote')
+      if (qs.length) {
+        g.set(qs, { opacity: 0, y: small ? 40 : 70, rotate: (i) => (i % 2 ? 4 : -4), transformOrigin: '50% 100%' })
+        ScrollTrigger.create({ trigger: '#quotes', start: small ? 'top 92%' : 'top 85%', once: true, onEnter: () => g.to(qs, { opacity: 1, y: 0, rotate: 0, duration: 1.2, ease: 'expo.out', stagger: 0.14 }) })
+        const tr = $('#quotes'); let last = tr.scrollLeft
+        const lean = g.quickTo(qs, 'rotate', { duration: 0.5, ease: 'power3.out' })
+        const settle = g.delayedCall(0.12, () => lean(0)); settle.pause()
+        tr.addEventListener('scroll', () => { const v = tr.scrollLeft - last; last = tr.scrollLeft; lean(Math.max(-3, Math.min(3, v * 0.12))); settle.restart(true) }, { passive: true })
       }
 
       // Wireframes and mockups drift slightly against the scroll, so the page feels alive

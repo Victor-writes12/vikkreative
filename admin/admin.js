@@ -29,7 +29,7 @@
     tools: { title: 'Tools and skills (the moving strip)', note: 'Pick a logo or an icon for each one. Letters only shows the first two letters of the name instead.', add: 'Add tool', blank: () => ({ name: '', logo: 'none' }), fields: [['name', 'Name', 'input'], ['logo', 'Logo', 'logo']], label: (x) => x.name },
     services: { title: 'Services', add: 'Add service', blank: () => ({ title: '', text: '' }), fields: [['title', 'Title', 'input'], ['text', 'Description', 'textarea']], label: (x) => x.title },
     process: { title: 'How I work (steps)', add: 'Add step', blank: () => ({ title: '', text: '' }), fields: [['title', 'Title', 'input'], ['text', 'Description', 'textarea']], label: (x) => x.title },
-    testimonials: { title: 'Testimonials', note: 'The section stays hidden on the site until there is at least one.', add: 'Add testimonial', blank: () => ({ quote: '', name: '', role: '' }), fields: [['quote', 'Quote', 'textarea'], ['name', 'Name', 'input'], ['role', 'Role and company', 'input']], label: (x) => x.name || x.quote },
+    testimonials: { title: 'Testimonials', note: 'The section stays hidden on the site until there is at least one.', add: 'Add testimonial', photo: true, blank: () => ({ photo: '', quote: '', name: '', role: '' }), fields: [['quote', 'Quote', 'textarea'], ['name', 'Name', 'input'], ['role', 'Role and company', 'input']], label: (x) => x.name || x.quote },
   }
   const autoLogo = (name = '') => { const k = name.toLowerCase().replace(/[^a-z]/g, ''); return LOGOS[k] || ICONS[k] ? k : '' }
 
@@ -67,8 +67,9 @@
     } catch { return file }
   }
   async function upload(file, folder) {
-    const isVideo = /^video\//.test(file.type)
-    const blob = isVideo ? file : await toWebp(file), ext = isVideo ? (file.type === 'video/webm' ? 'webm' : 'mp4') : blob.type === 'image/webp' ? 'webp' : (file.name.split('.').pop() || 'jpg').toLowerCase()
+    const isVideo = /^video\//.test(file.type), isSvg = file.type === 'image/svg+xml'
+    if (isSvg && file.size > 2 * 1024 * 1024) throw new Error('That SVG is over 2 MB. Export a simpler one.')
+    const blob = isVideo || isSvg ? file : await toWebp(file), ext = isSvg ? 'svg' : isVideo ? (file.type === 'video/webm' ? 'webm' : 'mp4') : blob.type === 'image/webp' ? 'webp' : (file.name.split('.').pop() || 'jpg').toLowerCase()
     const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
     const r = await sb.storage.from('portfolio').upload(path, blob, { contentType: blob.type, cacheControl: '31536000' })
     if (r.error) throw r.error
@@ -188,7 +189,7 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
       S.lists.tools.forEach((t) => { if (!t.logo) t.logo = autoLogo(t.name) || 'none' })
     }
     const logoSel = (l, i, v) => `<select data-l="${l}" data-i="${i}" data-k="logo"><option value="none"${v === 'none' ? ' selected' : ''}>Letters only</option><optgroup label="Tool logos">${Object.keys(LOGOS).map((k) => `<option value="${k}"${v === k ? ' selected' : ''}>${cap(k)}</option>`).join('')}</optgroup><optgroup label="Skill icons">${Object.keys(ICONS).map((k) => `<option value="${k}"${v === k ? ' selected' : ''}>${cap(k)}</option>`).join('')}</optgroup></select>`
-    return `<div class="ad-bar"><h1 class="ad-h">Content</h1></div>` + Object.entries(LISTS).map(([l, cfg], n) => `<details class="ad-det"${n === 0 ? ' open' : ''}><summary>${cfg.title}<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><div>${cfg.note ? `<p class="ad-mut" style="margin-bottom:1rem">${cfg.note}</p>` : ''}${S.lists[l].map((x, i) => `<div class="ad-rep">${cfg.fields.map(([k, lab, t]) => field(lab, t === 'textarea' ? `<textarea rows="3" data-l="${l}" data-i="${i}" data-k="${k}">${esc(x[k])}</textarea>` : t === 'logo' ? logoSel(l, i, x[k] || 'none') : `<input data-l="${l}" data-i="${i}" data-k="${k}" value="${esc(x[k])}">`)).join('')}<div class="ad-repctl"><button class="ab icon sm" type="button" data-act="l-up" data-l="${l}" data-i="${i}" aria-label="Move up"${i === 0 ? ' disabled' : ''}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="ab icon sm" type="button" data-act="l-down" data-l="${l}" data-i="${i}" aria-label="Move down"${i === S.lists[l].length - 1 ? ' disabled' : ''}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="ab dan icon sm" type="button" data-act="l-del" data-l="${l}" data-i="${i}" aria-label="Remove"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></div>`).join('')}<button class="ab sm" type="button" data-act="l-add" data-l="${l}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ${cfg.add}</button></div></details>`).join('') + `<div class="ad-foot"><button class="ab pri" data-act="save-content">Save content</button></div>`
+    return `<div class="ad-bar"><h1 class="ad-h">Content</h1></div>` + Object.entries(LISTS).map(([l, cfg], n) => `<details class="ad-det"${n === 0 ? ' open' : ''}><summary>${cfg.title}<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><div>${cfg.note ? `<p class="ad-mut" style="margin-bottom:1rem">${cfg.note}</p>` : ''}${S.lists[l].map((x, i) => `<div class="ad-rep">${cfg.photo ? `<div class="ad-up"><b>Client picture or logo</b><div class="ad-prev">${prev(x.photo)}</div><label class="ad-file"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Choose picture<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-up="lphoto" data-l="${l}" data-i="${i}"></label>${x.photo ? `<button class="ab sm" type="button" data-act="l-photo-rm" data-l="${l}" data-i="${i}">Remove picture</button>` : ''}</div><p class="ad-mut" style="margin:-.5rem 0 1.1rem">PNG, JPG, WebP or SVG. Square works best (400 x 400 pixels for a picture). A logo should sit in the middle with space around it. Other shapes get cropped. Optional.</p>` : ''}${cfg.fields.map(([k, lab, t]) => field(lab, t === 'textarea' ? `<textarea rows="3" data-l="${l}" data-i="${i}" data-k="${k}">${esc(x[k])}</textarea>` : t === 'logo' ? logoSel(l, i, x[k] || 'none') : `<input data-l="${l}" data-i="${i}" data-k="${k}" value="${esc(x[k])}">`)).join('')}<div class="ad-repctl"><button class="ab icon sm" type="button" data-act="l-up" data-l="${l}" data-i="${i}" aria-label="Move up"${i === 0 ? ' disabled' : ''}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="ab icon sm" type="button" data-act="l-down" data-l="${l}" data-i="${i}" aria-label="Move down"${i === S.lists[l].length - 1 ? ' disabled' : ''}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="ab dan icon sm" type="button" data-act="l-del" data-l="${l}" data-i="${i}" aria-label="Remove"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></div>`).join('')}<button class="ab sm" type="button" data-act="l-add" data-l="${l}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ${cfg.add}</button></div></details>`).join('') + `<div class="ad-foot"><button class="ab pri" data-act="save-content">Save content</button></div>`
   }
 
   function paint() {
@@ -234,6 +235,7 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
     }),
     sitemap: () => sitemap(),
     'l-add': (b) => { const l = b.dataset.l; S.lists[l].push(LISTS[l].blank()); paint() },
+    'l-photo-rm': (b) => { S.lists[b.dataset.l][+b.dataset.i].photo = ''; paint(); document.querySelectorAll('.ad-det')[3]?.setAttribute('open', '') },
     'l-del': (b) => { S.lists[b.dataset.l].splice(+b.dataset.i, 1); paint() },
     'l-up': (b) => lmove(b, -1), 'l-down': (b) => lmove(b, 1),
     'save-content': (b) => withBusy(b, async () => {
@@ -274,7 +276,8 @@ ${uploader('Profile photo', 'prev-portraitSrc', 'portraitSrc')}${uploader('Home 
     if (!files.length) return
     const box = inp.closest('.ad-up'); box.classList.add('busy')
     try {
-      if (t === 'cover') { S.edit.cover_url = await upload(files[0], 'projects'); setCover() }
+      if (t === 'lphoto') { const row = S.lists[inp.dataset.l][+inp.dataset.i]; row.photo = await upload(files[0], 'clients'); box.querySelector('.ad-prev').innerHTML = prev(row.photo) }
+      else if (t === 'cover') { S.edit.cover_url = await upload(files[0], 'projects'); setCover() }
       else if (t === 'video') { const f = files[0]; if (!/^video\/(mp4|webm)$/.test(f.type)) throw new Error('Choose an MP4 or WebM video.'); if (f.size > 40 * 1024 * 1024) throw new Error('That video is over 40 MB. Compress it first.'); S.edit.video_url = await upload(f, 'video'); setVideo() }
       else if (t === 'wireframes') { for (const f of files) S.edit.wireframes.push(await upload(f, 'projects')); setWire() }
       else if (t === 'mockups') { for (const f of files) S.edit.mockups.push(await upload(f, 'projects')); setMock() }

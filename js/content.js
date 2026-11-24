@@ -1,12 +1,10 @@
-// 1) SETTINGS: fill these in after you create the accounts (see README.md)
 window.SITE_CONFIG = {
-  siteUrl: 'https://vikkreative.com', 
-  supabaseUrl: 'https://bmlgxcdhruticmvigbqe.supabase.co',  
-  supabaseAnonKey: 'sb_publishable_ARrCbURYXNO1WFXaM5gIDQ_49Wwo2g5', 
-  web3formsKey: '',     
+  siteUrl: 'https://vikkreative.com',
+  supabaseUrl: 'https://bmlgxcdhruticmvigbqe.supabase.co',
+  supabaseAnonKey: 'sb_publishable_ARrCbURYXNO1WFXaM5gIDQ_49Wwo2g5',
+  web3formsKey: '',
 }
 
-// 2) TOOL LOGOS: the key is what the admin stores, the value is the file in images/logos/
 window.LOGOS = {
   photoshop: 'images/logos/photoshop.svg',
   aftereffects: 'images/logos/aftereffects.svg',
@@ -18,7 +16,6 @@ window.LOGOS = {
   coreldraw: 'images/logos/coreldraw.svg',
 }
 
-// Skills have no brand logo, so they use an icon instead (Font Awesome class names)
 window.ICONS = {
   uiux: 'fa-pen-ruler',
   graphic: 'fa-palette',
@@ -27,8 +24,6 @@ window.ICONS = {
   design3d: 'fa-cube',
 }
 
-// 3) 
-// The summaries, descriptions and delivery times of the projects below are starter text. Replace them in the admin.
 const KIND = {
   'Brand identity': {
     time: '2 to 3 weeks', tools: ['Illustrator', 'Photoshop'],
@@ -65,9 +60,9 @@ window.SITE = {
   name: 'Victor Ibrahim',
   brand: 'VikKreative',
   role: 'Creative Product & Visual Designer',
-  roles: 'UI/UX Designer, Graphic Designer, Motion Designer', // the line under the name, separate with commas
-  location: 'Lagos, Abuja, Remote', // several places separated by commas roll one after another. One place stays still.
-  phone: '', // optional, shown next to the email
+  roles: 'UI/UX Designer, Graphic Designer, Motion Designer',
+  location: 'Lagos, Abuja, Remote',
+  phone: '',
   heroTitle: 'Product and visual designer creating brand identities, websites and apps that help businesses look credible and grow.',
   heroText: 'I design apps, websites and brands for teams building across Africa and beyond.',
   heroSrc: 'images/hero.webp',
@@ -83,7 +78,7 @@ window.SITE = {
     { title: 'Prototype', text: 'Clickable prototypes so you can test the product before it is built.' },
     { title: 'Hand off', text: 'Clean files and support for your developers until the product ships.' },
   ],
-  testimonials: [], // add real client quotes in the admin; the section stays hidden until there is one
+  testimonials: [],
   services: [
     { title: 'Product design', text: 'Research, flows, wireframes and polished UI for mobile and web apps, with working prototypes.' },
     { title: 'Brand identity', text: 'Logos, colour, type and guidelines that stay consistent from a business card to a billboard.' },
