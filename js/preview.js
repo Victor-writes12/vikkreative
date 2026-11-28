@@ -1,5 +1,3 @@
-// PREVIEW CONTENT. Set enabled to false (or delete this file and its script tag in the three html files) when the real content is ready.
-// It only fills in what is empty: anything saved in the admin always wins over the sample text below.
 window.SITE_PREVIEW = {
   enabled: true,
   testimonials: [

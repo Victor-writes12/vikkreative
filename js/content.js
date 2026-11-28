@@ -1,5 +1,5 @@
 window.SITE_CONFIG = {
-  siteUrl: '', // set to https://vikkreative.com (no slash at the end) once the domain works
+  siteUrl: '',
   supabaseUrl: 'https://bmlgxcdhruticmvigbqe.supabase.co',
   supabaseAnonKey: 'sb_publishable_ARrCbURYXNO1WFXaM5gIDQ_49Wwo2g5',
   web3formsKey: '',

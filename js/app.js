@@ -12,8 +12,6 @@
   const pills = (c) => list(c).map((x) => `<span class="pill">${esc(x)}</span>`).join('')
   let CUR = D
 
-  // ---------- Clean addresses ----------
-  // On the live site the links have no .html. When the folder is opened on your own computer the .html is added back so the pages still open.
   const LOCAL = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
   const fixLinks = () => {
     if (!LOCAL) return
@@ -27,7 +25,6 @@
     if (clean !== location.pathname) history.replaceState(null, '', clean + location.search + location.hash)
   }
 
-  // ---------- Tools and skills strip ----------
   const logoFor = (t) => {
     if (t.logo === 'none') return ''
     return LOGOS[t.logo] || LOGOS[String(t.name || '').toLowerCase().replace(/[^a-z]/g, '')] || ''
@@ -50,7 +47,6 @@
     el.innerHTML = Array.from({ length: 6 }, (_, i) => `<ul class="seg"${i ? ' aria-hidden="true"' : ''}>${seg}</ul>`).join('')
   }
 
-  // ---------- SEO helpers ----------
   const meta = (sel, attr, key, val) => {
     let e = document.head.querySelector(sel)
     if (!e) { e = document.createElement('meta'); e.setAttribute(attr, key); document.head.append(e) }
@@ -65,7 +61,6 @@
   }
   const abs = (u = '') => (isUrl(u) ? u : SITE_URL ? `${SITE_URL}/${u.replace(/^\//, '')}` : u)
 
-  // ---------- Location label that rolls through several places ----------
   let locTimer = null
   function startLoc(items) {
     clearInterval(locTimer)
@@ -84,7 +79,6 @@
     }, 2400)
   }
 
-  // ---------- Rendering ----------
   const zcard = (p) => `<a class="zc" data-rv href="project?p=${encodeURIComponent(p.slug)}"><div class="zc-in"><div class="pills">${pills(p.category)}</div><h3>${esc(p.title)}</h3>${p.summary ? `<p class="zc-sum">${esc(p.summary)}</p>` : ''}${p.src ? `<div class="zc-img"><img src="${esc(p.src)}" alt="${esc(p.title)}" width="808" height="632" loading="lazy" style="view-transition-name:${vt(p.slug)}"></div>` : ''}</div></a>`
 
   function strips(projects) {
@@ -102,12 +96,10 @@
     a.style.setProperty('--dur', `${base.length * 8}s`); b.style.setProperty('--dur', `${base.length * 9}s`)
   }
 
-  // Testimonials deck: each card has a picture side and a message side
   const deckHtml = (list) => list.map((t, i) => {
     const n = String(i + 1).padStart(2, '0')
     return `<div class="dk" role="button" tabindex="0" aria-expanded="false" aria-label="${esc(t.name)}, read testimonial"><div class="dk-in"><div class="dk-f">${t.photo ? `<img src="${esc(t.photo)}" alt="" loading="lazy" draggable="false">` : `<span class="dk-ph">${esc((t.name || '?').slice(0, 1))}</span>`}<span class="dk-n">${n}</span><div class="dk-cap"><b>${esc(t.name)}</b><span>${esc(t.role)}</span></div><span class="dk-plus" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></div><div class="dk-b" aria-hidden="true"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><blockquote>${esc(t.quote)}</blockquote><p><b>${esc(t.name)}</b><span>${esc(t.role)}</span></p><button type="button" class="dk-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div></div></div>`
   }).join('') + (list.length ? '<a class="dk dk-you" href="./#contact"><span>You?</span><small>Be the next story</small></a>' : '')
-  // Two crossing strips. The words come from the services and roles saved in the admin.
   function bands(d) {
     const a = $('#band-a'), b = $('#band-b'); if (!a || !b) return
     const sv = (d.services || []).map((s) => s.title).filter(Boolean), rl = list(d.roles)
@@ -142,7 +134,6 @@
     fixLinks()
   }
 
-  // ---------- Project preview page ----------
   function renderProject(d, ready) {
     const slug = new URLSearchParams(location.search).get('p')
     const i = d.projects.findIndex((x) => x.slug === slug), p = d.projects[i]
@@ -199,7 +190,6 @@
     canon(`project?p=${encodeURIComponent(p.slug)}`)
   }
 
-  // ---------- Admin content (Supabase), loaded in the browser ----------
   const REST = (path) => fetch(`${C.supabaseUrl.replace(/\/+$/, '')}/rest/v1/${path}`, { headers: { apikey: C.supabaseAnonKey } }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
   async function remote() {
     if (!C.supabaseUrl || !C.supabaseAnonKey) return null
@@ -210,7 +200,6 @@
   const norm = (x) => ({ slug: x.slug, title: x.title, category: x.category || '', summary: x.summary || '', description: x.description || '', client: x.client || '', role: x.role || '', year: x.year || '', tools: x.tools || [], link: x.link || '', src: x.cover_url || '', gallery: x.gallery || [], video: x.video_url || '', mockups: x.mockups || [], wireframes: x.wireframes || [], problem: x.problem || '', approach: x.approach || '', results: x.results || '', process: stepsOf(x.process), quote: x.quote || '', quoteName: x.quote_name || '', quoteRole: x.quote_role || '' })
   const TEXT = ['name', 'brand', 'role', 'roles', 'location', 'phone', 'heroTitle', 'heroText', 'email', 'about', 'aboutLong', 'heroSrc', 'servicesSrc', 'contactSrc', 'portraitSrc']
   const LISTS = ['process', 'testimonials', 'services', 'tools']
-  // Sample content from js/preview.js. It only fills what is empty, so anything saved in the admin always wins.
   const PV = window.SITE_PREVIEW
   const fill = (d) => {
     if (!PV || PV.enabled === false) return d
@@ -232,7 +221,6 @@
     return d
   }
 
-  // ---------- Opening animation, smooth scroll and 3D motion ----------
   let kill = () => {}, heroDone = false, L = null
   function splitName() {
     const nm = $('.who h1 [data-f=name]')
@@ -254,7 +242,6 @@
       .from('.dock', { y: 110, opacity: 0, duration: 1, ease: 'back.out(1.4)' }, 1.3)
   }
 
-  // Testimonials deck: click or press Enter to flip a card, Escape or the cross to flip back
   let deckApi = null
   ;(function () {
     const root = $('#deck'); if (!root) return
@@ -266,7 +253,6 @@
     }
     root.addEventListener('click', (e) => { const c = e.target.closest('.dk'); if (!c || c.classList.contains('dk-you')) return; toggle(c, e.target.closest('.dk-x') ? false : !c.classList.contains('open')) })
     root.addEventListener('keydown', (e) => { const c = e.target.closest('.dk'); if (!c) return; if (e.key === 'Enter' || e.key === ' ') { if (e.target.closest('.dk-x')) return; e.preventDefault(); toggle(c, !c.classList.contains('open')) } else if (e.key === 'Escape') toggle(c, false) })
-    // Auto next: once the deck is dealt, the cards flip one after another. It waits while someone is touching, hovering or reading.
     let hold = 0, hover = false, k = -1
     const touch = () => { hold = Date.now() + 9000 }
     root.addEventListener('click', touch); root.addEventListener('touchstart', touch, { passive: true }); root.addEventListener('keydown', touch)
@@ -291,14 +277,11 @@
     lenis.on('scroll', ScrollTrigger.update); g.ticker.add(tick); g.ticker.lagSmoothing(0)
     const small = innerWidth < 700
     const ctx = g.context(() => {
-      // Hero: the picture drifts slower than the page, the profile fades as the rows arrive
       if ($('#home')) {
         g.fromTo('.hero-card img, .hero-card video', { yPercent: -4 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: true } })
         g.to('#home', { scale: 0.93, opacity: 0.3, transformOrigin: '50% 100%', ease: 'none', scrollTrigger: { trigger: '.cover', start: 'top 95%', end: 'top 5%', scrub: true } })
       }
 
-      // Staged reveal: nothing opens at once. Each card, heading and section waits until it scrolls into view,
-      // then arrives small and grows into place, one after another.
       const rv = g.utils.toArray('[data-rv]')
       if (rv.length) {
         g.set(rv, { opacity: 0, y: small ? 40 : 80, scale: 0.9, transformOrigin: '50% 100%' })
@@ -312,10 +295,8 @@
         })
       }
 
-      // Testimonials: scrolling deals a stacked deck into a fan, one card after another
       const dk = g.utils.toArray('#deck .dk'), dsec = $('#testimonials')
       if (dk.length && dsec && !dsec.hidden && small) {
-        // Phones: no pinned fan. The cards sit in a row you swipe, each fully visible. Tap one to read it.
         const tip = $('#deck-tip'); if (tip) tip.textContent = 'Swipe, then tap a card to read'
         g.from(dk, { y: 50, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.1, scrollTrigger: { trigger: '#deck', start: 'top 88%', once: true } })
         deckApi = { dealt: () => { const r = dsec.getBoundingClientRect(); return r.top < innerHeight * 0.55 && r.bottom > innerHeight * 0.45 }, lift(c, on) { if (on) c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } }
@@ -336,7 +317,6 @@
         update(0)
         ScrollTrigger.create({ trigger: dsec, start: 'top top', end: 'bottom bottom', onUpdate: (s) => { if (Math.abs(s.progress - cur) > 0.004) document.dispatchEvent(new Event('deck-close')); update(s.progress) } })
         deckApi = { dealt: () => { const r = dsec.getBoundingClientRect(); return cur > 0.8 && r.top <= 0 && r.bottom >= innerHeight * 0.6 }, lift(c, on) { const i = dk.indexOf(c); if (on) g.to(c, { rotation: 0, x: 0, y: small ? -10 : -26, duration: 0.7, ease: 'expo.out', overwrite: 'auto' }); else g.to(c, { ...pose(i, ease(Math.max(0, Math.min(1, (Math.min(1, cur / 0.78) * (n + 3) - i) / 4)))), duration: 0.6, ease: 'expo.out', overwrite: 'auto' }) } }
-        // The FLIP cursor follows the mouse over the cards (mouse only)
         if (matchMedia('(hover: hover)').matches) {
           const cur2 = document.createElement('div'); cur2.className = 'flipcur'; cur2.setAttribute('aria-hidden', 'true'); cur2.textContent = 'FLIP'; document.body.appendChild(cur2)
           const mx = g.quickTo(cur2, 'x', { duration: 0.35, ease: 'power3.out' }), my = g.quickTo(cur2, 'y', { duration: 0.35, ease: 'power3.out' })
@@ -346,16 +326,13 @@
         }
       }
 
-      // The two strips drift sideways and straighten a little as you scroll past
       if ($('.bands')) { g.fromTo('.band-a', { rotate: -5 }, { rotate: -3, ease: 'none', scrollTrigger: { trigger: '.bands', start: 'top bottom', end: 'bottom top', scrub: true } }); g.fromTo('.band-b', { rotate: 4 }, { rotate: 2, ease: 'none', scrollTrigger: { trigger: '.bands', start: 'top bottom', end: 'bottom top', scrub: true } }) }
 
-      // Wireframes pop in from the left and the right with a tilt, then settle in their own place and stay there
       g.utils.toArray('#p-wire .wf').forEach((el, i) => {
         g.set(el, { x: (i % 2 ? 1 : -1) * (small ? 90 : 260), rotate: (i % 2 ? 1 : -1) * 7, scale: 0.9, opacity: 0 })
         ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => g.to(el, { x: 0, rotate: 0, scale: 1, opacity: 1, duration: 1.2, ease: 'back.out(1.25)' }) })
       })
 
-      // Everything else rises into view as you scroll: headings, text, steps, tools, results, images and the footer
       const rise = g.utils.toArray('.block > h2, .block > .lead, .trust, .contact h2, .form, .proj-top > *, .proj-text > *, .case > *, .about-top > div > *, .steps li:not([data-rv]), .mock > *, .gallery > *, .foot-top > *, .foot-bottom')
         .filter((el) => !el.hasAttribute('data-rv') && !el.hasAttribute('data-depth') && !el.hasAttribute('data-par') && !el.closest('[data-rv]') && !el.closest('#home') && !el.closest('#testimonials'))
       if (rise.length) {
@@ -363,26 +340,21 @@
         ScrollTrigger.batch(rise, { start: small ? 'top 96%' : 'top 92%', once: true, onEnter: (b) => g.to(b, { opacity: 1, y: 0, duration: 1.05, ease: 'power3.out', stagger: 0.09, overwrite: true }) })
       }
 
-      // Wireframes and mockups drift slightly against the scroll, so the page feels alive
       if (!small) g.utils.toArray('[data-par]').forEach((el) => g.fromTo(el, { yPercent: 4 }, { yPercent: -4, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.6 } }))
 
-      // Service cards fold up from below
       if ($('#cards .glass')) g.from('#cards .glass', { rotateX: -28, y: 70, opacity: 0, transformPerspective: 900, transformOrigin: '50% 100%', stagger: 0.12, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: '#cards', start: 'top 88%', once: true } })
 
-      // Portrait, project cover and gallery images tilt flat as they arrive
       g.utils.toArray('[data-depth]').forEach((el) => g.fromTo(el, { rotateX: small ? 4 : 8, y: 40, opacity: 0.4, transformPerspective: 2000, transformOrigin: '50% 100%' }, { rotateX: 0, y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 98%', end: 'top 50%', scrub: true } }))
     })
     kill = () => { ctx.revert(); g.ticker.remove(tick); lenis.destroy(); L = null; deckApi = null; $$('.flipcur').forEach((x) => x.remove()); const ds = $('#testimonials'); if (ds) { ds.classList.remove('live'); ds.style.height = '' } }
   }
 
-  // Back to top
   document.addEventListener('click', (e) => {
     if (!e.target.closest?.('[data-top]')) return
     e.preventDefault()
     L ? L.scrollTo(0) : scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })
   })
 
-  // Hover tilt on service cards
   if (matchMedia('(hover:hover)').matches && !reduced) {
     document.addEventListener('pointermove', (e) => {
       const c = e.target.closest?.('.tilt'); if (!c) return
@@ -395,7 +367,6 @@
     })
   }
 
-  // Contact form (Web3Forms sends it to the email the key was created with)
   const form = $('#form')
   if (form) form.addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -412,10 +383,8 @@
     b.disabled = false
   })
 
-  // Start
   const hasRemote = !!(C.supabaseUrl && C.supabaseAnonKey)
   const show = () => document.documentElement.classList.remove('wait')
-  // The hero stays pinned while the page slides over it. If it is taller than the screen, it pins by its bottom edge.
   const pinHero = () => { const h = $('#home'); if (h) h.style.top = Math.min(0, innerHeight - h.offsetHeight) + 'px' }
   addEventListener('resize', pinHero); addEventListener('load', pinHero)
   const paint = (d) => { render(fill(d), true); pinHero(); motion(); show(); setTimeout(pinHero, 600) }

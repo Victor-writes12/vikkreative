@@ -17,7 +17,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .logo{font:600 1rem var(--f-head);letter-spacing:-.02em}
 .kicker{margin-bottom:1.25rem;font-size:.95rem;color:var(--mut)}
 
-/* ===== Floating dock (the icon bar). Hover or focus swaps the icon for its name ===== */
 .dock{position:fixed;z-index:60;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom));translate:-50% 0;display:flex;gap:.55rem;padding:.55rem;border:1px solid rgba(255,255,255,.1);border-radius:28px;background:rgba(22,22,25,.78);-webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 24px 44px -14px rgba(0,0,0,.8)}
 .dock a{position:relative;display:grid;place-items:center;min-width:3.3rem;height:3.3rem;padding:0 .2rem;border-radius:20px;background:#26262a;color:#f2f2f3;transition:min-width .45s var(--ease),background .3s}
 .dock a i{grid-area:1/1;font-size:1.2rem;transition:opacity .25s,transform .4s var(--ease)}
@@ -27,7 +26,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .dock a:hover span,.dock a:focus-visible span{opacity:1;transform:none}
 .dock a[aria-current=page]{background:var(--ac)}
 
-/* ===== Hero ===== */
 .hero{padding-top:1rem}
 .hero-card{position:relative;overflow:hidden;aspect-ratio:2.15/1;border:1px solid var(--line);border-radius:30px;background:var(--card)}
 .hero-card img,.hero-card video{position:absolute;left:0;top:-10%;width:100%;height:120%;object-fit:cover;object-position:center 50%}
@@ -56,7 +54,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .callbtn:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.28)}
 .contacts .callbtn{color:var(--fg)}
 @media(max-width:700px){.hero-card{aspect-ratio:1/1.02;border-radius:26px}.who{margin-top:-4.6rem}}
-/* Wide screens: the avatar sits left of the name, and everything else lines up under the name */
 @media(min-width:900px){
   .who{grid-template-columns:auto auto;justify-content:center;justify-items:start;column-gap:1.6rem;text-align:left}
   .who-top{display:contents}
@@ -66,7 +63,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   .tagline{width:0;min-width:100%;max-width:none}
 }
 
-/* ===== Sliding project rows ===== */
 .strips{display:grid;gap:.9rem;padding:.5rem 0 2rem;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .strip{overflow:hidden}
 .strip-track{display:flex;width:max-content;animation:slide var(--dur,70s) linear infinite}
@@ -81,7 +77,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .tip .pills{gap:.35rem}.tip .pill{padding:.1rem .6rem;font-size:.6rem;border-color:rgba(255,255,255,.3);color:#e3e4e8}
 @keyframes slide{to{transform:translateX(-50%)}}
 
-/* ===== Work: the project list ===== */
 .block>h2{margin-bottom:2rem}
 .pill,.chip{display:inline-block;padding:.28rem .85rem;border:1px solid rgba(255,255,255,.16);border-radius:999px;font-size:.72rem;line-height:1.5;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
 .pills{display:flex;flex-wrap:wrap;gap:.5rem}
@@ -101,14 +96,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @media(min-width:900px){.zlist{gap:2.6rem}.zgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.zc-in{min-height:clamp(14rem,28vh,20rem);padding:1.9rem 1.8rem;gap:.8rem}.zc h3{max-width:10ch;font-size:clamp(1.35rem,2vw,1.9rem)}.zc-sum{max-width:calc(52% - 1rem);font-size:.92rem}.zc-img{width:min(48%,17rem)}}
 .go{display:inline-flex;gap:.6rem;align-items:center;font-weight:600}.go i{transition:transform .4s var(--ease)}
 
-/* ===== Services ===== */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
 .glass{background:var(--glass);border:1px solid var(--line);border-radius:24px;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);color:var(--fg)}
 .cards p{margin-top:.75rem;color:var(--mut)}
 .tilt{perspective:900px}
 .tilt-in{height:100%;padding:1.75rem;transition:transform .5s var(--ease);transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
 
-/* ===== Tools and skills strip ===== */
 .trust{margin-top:3.5rem}
 .trust-label{margin-bottom:1.25rem;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
 .marquee{overflow:hidden;padding:.4rem 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
@@ -122,7 +115,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .tool b{background:var(--ac);color:#fff;font:700 .85rem var(--f-head)}
 @media(prefers-reduced-motion:reduce){.marquee,.strips{-webkit-mask-image:none;mask-image:none}.marquee-track{width:auto;flex-wrap:wrap}.seg:nth-child(n+2){display:none}.seg{flex-wrap:wrap;gap:.75rem}.strip-track{animation:none;width:auto;overflow-x:auto}}
 
-/* ===== Contact ===== */
 .contact{position:relative;max-width:640px;margin-inline:auto;text-align:center}
 .contact::before{width:15rem;height:15rem;left:-4rem;top:38%;background:#e5372f}
 .contact::after{width:17rem;height:17rem;right:-5rem;bottom:-2rem;background:#3b4cff}
@@ -135,7 +127,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 #status{min-height:1.4rem;color:var(--mut);font-size:.92rem;text-align:center}
 .hp{position:absolute;left:-9999px}
 
-/* ===== About page ===== */
 .about{display:grid;grid-template-columns:minmax(0,380px) 1fr;gap:clamp(2rem,6vw,5rem);align-items:center}
 .portrait{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border:1px solid var(--line);border-radius:30px}
 @media(max-width:800px){.about{grid-template-columns:1fr}.portrait{max-width:300px}}
@@ -146,8 +137,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .steps li::before{content:counter(s);display:block;margin-bottom:.75rem;font:600 .95rem var(--f-head);color:var(--ac)}
 .steps p{margin-top:.5rem;color:var(--mut)}
 
-
-/* Two crossing strips */
 .bands{position:relative;height:clamp(9rem,17vw,12.5rem);margin:1rem 0 .5rem;overflow:hidden}
 .band{position:absolute;left:-6%;width:112%;overflow:hidden;display:flex;align-items:center;height:clamp(3.2rem,6vw,4.6rem)}
 .band-a{top:34%;transform:rotate(-4deg);background:var(--ac);color:#0a0a0b;z-index:2}
@@ -159,7 +148,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .band-b span{font-weight:500;color:var(--fg)}
 .band i{width:.9rem;height:.9rem;flex:none;background:currentColor;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
 
-/* Testimonials deck */
 .deck{position:relative}
 .deck-pin{--cw:clamp(150px,19vw,230px);padding:clamp(2.5rem,7vw,5rem) 0}
 .deck-tip{text-align:center;color:var(--mut);font:600 .78rem var(--f-head);letter-spacing:.18em;text-transform:uppercase;margin:0}
@@ -189,7 +177,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .dk-you span{font:600 clamp(1.8rem,3vw,2.6rem) var(--f-head);letter-spacing:-.04em}
 .dk-you small{color:var(--mut);font-size:.8rem}
 .dk.open{z-index:20}
-/* live: pinned and dealt by scrolling (only when motion is on) */
 .deck.live .deck-pin{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;gap:1.2rem;padding:1rem 0;overflow:hidden}
 .deck.live .deck-pin .wrap h2{margin-bottom:0}
 .deck.live .deck-tip{display:block}
@@ -209,14 +196,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 [hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-/* ===== Page transition (browsers without support ignore this) ===== */
 @view-transition{navigation:auto}
 ::view-transition-old(root){animation:.3s var(--ease) both vt-out}
 ::view-transition-new(root){animation:.55s var(--ease) both vt-in}
 @keyframes vt-out{to{opacity:0;transform:translateY(-10px)}}
 @keyframes vt-in{from{opacity:0;transform:translateY(18px)}}
 
-/* ===== Footer ===== */
 .footer{border-top:1px solid var(--line);padding-bottom:5.5rem}
 .foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:2.5rem;padding:4rem 0 3rem}
 .foot-brand p{margin-top:.8rem;color:var(--mut);max-width:34ch}
@@ -227,7 +212,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @media(max-width:820px){.foot-top{grid-template-columns:1fr 1fr;padding-top:3rem}.foot-brand{grid-column:1/-1}}
 @media(max-width:480px){.foot-top{gap:2rem 1.25rem}.foot-col a{overflow-wrap:anywhere}.foot-top>div:last-child{grid-column:1/-1}}
 
-/* ===== Project preview page ===== */
 .proj-top{padding-top:3rem;text-align:center}
 .proj-top .pills{justify-content:center}
 .proj-top h1{max-width:18ch;margin:1.1rem auto 0}.proj-top .lead{margin:1.25rem auto 0}
@@ -258,15 +242,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @media(max-width:860px){.proj-body{grid-template-columns:1fr}.proj-side{position:static}.next{grid-template-columns:1fr}.next img{order:-1;min-height:0;aspect-ratio:808/632}}
 .notfound{padding:6rem 0}
 
-/* ===== Hide the page until the saved content has loaded, so old text never flashes ===== */
 body{transition:opacity .45s ease}
 html.wait body{opacity:0;animation:reveal .01s 3.5s forwards}
 @keyframes reveal{to{opacity:1}}
 
-/* Hero contact row on phones: email and Book a call stay on one line */
 @media(max-width:560px){.contacts{gap:.6rem .8rem;font-size:.86rem}.contacts .callbtn{padding:.6rem 1rem;font-size:.86rem;gap:.45rem}}
 
-/* Project page sections */
 .vid video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--line);border-radius:28px;background:#000;box-shadow:var(--shadow)}
 .vid{padding-top:clamp(1rem,3vw,2rem)}
 .case{display:grid;gap:1rem}
@@ -284,14 +265,11 @@ html.wait body{opacity:0;animation:reveal .01s 3.5s forwards}
 .proj-tools h3{flex-basis:100%;font-size:1.1rem;margin-bottom:.2rem}
 @media(min-width:1000px){.wire{grid-template-columns:repeat(3,1fr)}.wire img:last-child:nth-child(odd){grid-column:auto}}
 
-/* Contact band: a calm looping video behind the glass form */
 .cband{position:relative;isolation:isolate;overflow:hidden;border-radius:32px;padding:clamp(2.5rem,7vw,5.5rem) clamp(1rem,4vw,2rem);border:1px solid var(--line);background:#111114}
 .cband-vid{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(.8)}
 .cband::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 50%,rgba(10,10,11,.15),rgba(10,10,11,.7))}
-/* Home: the hero stays put while the page slides up over it */
 .hero{position:sticky;top:0;z-index:0}
 .cover{position:relative;z-index:2;background:var(--bg);border-radius:34px 34px 0 0;box-shadow:0 -40px 80px -30px rgba(0,0,0,.85);padding-top:1.2rem}
-/* Project page tools with icons */
 .ptools{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.4rem}
 .ptool{display:inline-flex;align-items:center;gap:.65rem;padding:.45rem 1.1rem .45rem .5rem;border:1px solid var(--line);border-radius:999px;background:var(--card);font-weight:500;font-size:.95rem}
 .ptool img,.ptool .ti{width:1.9rem;height:1.9rem;border-radius:9px;object-fit:contain}

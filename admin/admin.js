@@ -16,7 +16,6 @@
   let tt
   const toast = (m, bad) => { const t = $('#toast'); t.textContent = m; t.className = 'on' + (bad ? ' bad' : ''); clearTimeout(tt); tt = setTimeout(() => (t.className = ''), bad ? 6000 : 2600) }
 
-  // ---------- Setup check ----------
   if (!C.supabaseUrl || !C.supabaseAnonKey || !window.supabase) {
     app.innerHTML = `<div class="ad-login"><div class="ad-card"><h1>Almost there</h1><p class="ad-mut">${!window.supabase ? 'The Supabase library did not load. Check your internet connection and reload.' : 'Add your Supabase Project URL and anon key to <b>js/content.js</b> (supabaseUrl and supabaseAnonKey), then reload this page. The steps are in README.md.'}</p></div></div>`
     return
@@ -33,7 +32,6 @@
   }
   const autoLogo = (name = '') => { const k = name.toLowerCase().replace(/[^a-z]/g, ''); return LOGOS[k] || ICONS[k] ? k : '' }
 
-  // ---------- Data ----------
   async function loadProjects() {
     const r = await sb.from('projects').select('*').order('sort_order', { ascending: true })
     if (r.error) throw r.error
@@ -76,7 +74,6 @@
     return sb.storage.from('portfolio').getPublicUrl(path).data.publicUrl
   }
 
-  // ---------- Views ----------
   const field = (label, inner, hint) => `<label class="af">${label}${inner}${hint ? `<small>${hint}</small>` : ''}</label>`
   const input = (name, val = '', extra = '') => `<input name="${name}" value="${esc(val)}" ${extra}>`
   const area = (name, val = '', rows = 4, extra = '') => `<textarea name="${name}" rows="${rows}" ${extra}>${esc(val)}</textarea>`
@@ -135,7 +132,7 @@
     return `<div class="ad-bar"><h1 class="ad-h">${e.id ? 'Edit project' : 'New project'}</h1><button class="ab" data-act="cancel">Back to projects</button></div>
 <form id="pf" class="ad-form" novalidate>
 <section class="ad-sec"><h3>Basic details</h3>${field('Title', input('title', e.title, 'required maxlength="80"'))}
-${field('Page address', input('slug', e.slug, 'maxlength="60" autocapitalize="off"'), 'Page address')}
+${field('Page address', input('slug', e.slug, 'maxlength="60" autocapitalize="off"'), 'Used in the link: yoursite.com/project?p=this-part. Changing it later breaks old links.')}
 ${field('Category', input('category', e.category, 'list="cats" maxlength="60"') + `<datalist id="cats">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>`, 'Separate several with commas.')}
 ${field('Short summary', area('summary', e.summary, 2, 'maxlength="220"'))}
 ${field('Full description', area('description', e.description, 9), 'Leave a blank line between paragraphs.')}
@@ -202,7 +199,6 @@ ${field('About page story', area('aboutLong', g('aboutLong'), 10), 'Leave a blan
   const setVideo = () => { const e = $('#prev-vid'); if (e) e.innerHTML = vprev(S.edit.video_url) }
   const setSiteImg = (k) => { const e = $('#prev-' + k); if (e) e.innerHTML = prev(S.imgs[k]) }
 
-  // ---------- Actions ----------
   const withBusy = async (btn, fn) => {
     if (btn) btn.disabled = true
     try { await fn() } catch (e) { toast(msg(e), true) } finally { if (btn && btn.isConnected) btn.disabled = false }
@@ -272,7 +268,6 @@ ${field('About page story', area('aboutLong', g('aboutLong'), 10), 'Leave a blan
     box.classList.remove('busy'); inp.value = ''
   }
 
-  // ---------- Events ----------
   app.addEventListener('click', (e) => { const b = e.target.closest('[data-act]'); if (b && ACT[b.dataset.act]) ACT[b.dataset.act](b) })
   app.addEventListener('change', (e) => { if (e.target.matches('input[type=file]')) onFile(e.target) })
   app.addEventListener('input', (e) => {
@@ -319,7 +314,6 @@ ${field('About page story', area('aboutLong', g('aboutLong'), 10), 'Leave a blan
     await saveSite(patch); toast('Saved. The website now shows your changes.')
   }
 
-  // ---------- Auth ----------
   const onUser = (u) => { if ((u?.id || null) === (S.user?.id || null)) return; S.user = u; S.view = 'overview'; S.edit = null; if (u) setTimeout(boot, 0); else paint() }
   sb.auth.onAuthStateChange((_e, session) => onUser(session?.user || null))
   sb.auth.getSession().then(({ data }) => { onUser(data.session?.user || null); if (!data.session) paint() })
