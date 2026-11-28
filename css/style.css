@@ -198,7 +198,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .flipcur{position:fixed;left:0;top:0;z-index:200;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:var(--ac);color:#fff;display:grid;place-items:center;font:700 .72rem var(--f-head);letter-spacing:.14em;pointer-events:none;opacity:0;scale:.4;transition:opacity .2s,scale .3s var(--ease)}
 .flipcur.on{opacity:1;scale:1}
 @media(hover:hover){.deck.live .dk:not(.dk-you){cursor:none}}
-@media(max-width:699px){.deck-pin{--cw:min(36vw,170px)}.dk-b blockquote{font-size:.8rem}.dk-cap b{font-size:.85rem}.band-a,.band-b{top:30%}}
+@media(max-width:699px){.deck:not(.live) .deck-stage{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:1rem;width:100%;margin:1rem 0;padding:1.4rem 15vw 1.8rem;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.deck:not(.live) .deck-stage::-webkit-scrollbar{display:none}
+.deck:not(.live) .dk{flex:0 0 70vw;max-width:300px;scroll-snap-align:center}
+.deck:not(.live) .dk.open .dk-in{transform:rotateY(180deg)}
+.deck:not(.live) .deck-tip{display:block}
+.deck-pin{--cw:min(36vw,170px)}.dk-b blockquote{font-size:.8rem}.dk-cap b{font-size:.85rem}.band-a,.band-b{top:30%}}
 @media(prefers-reduced-motion:reduce){.band-track{animation:none}}
 
 [hidden]{display:none!important}

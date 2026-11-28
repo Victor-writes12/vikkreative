@@ -314,7 +314,13 @@
 
       // Testimonials: scrolling deals a stacked deck into a fan, one card after another
       const dk = g.utils.toArray('#deck .dk'), dsec = $('#testimonials')
-      if (dk.length && dsec && !dsec.hidden) {
+      if (dk.length && dsec && !dsec.hidden && small) {
+        // Phones: no pinned fan. The cards sit in a row you swipe, each fully visible. Tap one to read it.
+        const tip = $('#deck-tip'); if (tip) tip.textContent = 'Swipe, then tap a card to read'
+        g.from(dk, { y: 50, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.1, scrollTrigger: { trigger: '#deck', start: 'top 88%', once: true } })
+        deckApi = { dealt: () => { const r = dsec.getBoundingClientRect(); return r.top < innerHeight * 0.55 && r.bottom > innerHeight * 0.45 }, lift(c, on) { if (on) c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) } }
+      } else if (dk.length && dsec && !dsec.hidden) {
+        const tip = $('#deck-tip'); if (tip) tip.textContent = 'Tap a card to read'
         const n = dk.length, step = small ? Math.min(6.5, 34 / n) : Math.min(12, 70 / n), R = small ? '200%' : '300%'
         dsec.classList.add('live'); dsec.style.height = (innerHeight * (small ? 2.2 : 2.5)) + 'px'
         const pose = (i, e) => { const c = (n - 1) / 2, fan = (i - c) * step, st = ((i % 3) - 1) * 2.2; return { rotation: st + (fan - st) * e, x: ((i % 2) * 2 - 1) * 3 * (1 - e), y: (1 - e) * (i % 3) * 2 } }
