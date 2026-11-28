@@ -1,0 +1,47 @@
+// PREVIEW CONTENT. Set enabled to false (or delete this file and its script tag in the three html files) when the real content is ready.
+// It only fills in what is empty: anything saved in the admin always wins over the sample text below.
+window.SITE_PREVIEW = {
+  enabled: true,
+  testimonials: [
+    { name: 'Amaka Obi', role: 'Founder, Jovine Touch', photo: 'images/preview/client-1.webp', quote: 'Victor understood the brand before I could explain it. The identity he delivered feels warm and expensive, and our clients mention it every week.' },
+    { name: 'Tunde Bakare', role: 'CEO, Kablux', photo: 'images/preview/client-2.webp', quote: 'The new website made our product easy to understand. Sign ups went up in the first month and the developer handoff was spotless.' },
+    { name: 'Ifeoma Nwosu', role: 'Product Lead, Jollof Game', photo: 'images/preview/client-3.webp', quote: 'He turned a messy idea into a clear app flow. Testing the prototype with real players saved us weeks of rework.' },
+    { name: 'Chidi Eze', role: 'Owner, Hennessy Store', photo: 'images/preview/client-4.webp', quote: 'Our store finally looks as premium as the products. Customers find what they want faster and checkout feels effortless.' },
+    { name: 'Sade Williams', role: 'Director, Orchid Studio', photo: 'images/preview/client-5.webp', quote: 'Calm to work with and fast with feedback. The final motion pieces made our launch feel like an event.' },
+  ],
+  projects: {
+    'jovine-touch': {
+      client: 'Jovine Touch', year: '2026', video: 'video/jovine-touch.mp4',
+      wireframes: ['images/preview/jovine-touch-wire-1.webp', 'images/preview/jovine-touch-wire-2.webp', 'images/preview/jovine-touch-wire-3.webp'],
+      mockups: ['images/preview/jovine-touch-mock-1.webp', 'images/preview/jovine-touch-mock-2.webp', 'images/preview/jovine-touch-mock-3.webp'],
+      gallery: ['images/preview/jovine-touch-gallery-1.webp', 'images/preview/jovine-touch-gallery-2.webp', 'images/preview/jovine-touch-gallery-3.webp'],
+      problem: 'Jovine Touch had beautiful interiors but a brand that looked like a template. Clients could not tell it apart from other studios.',
+      approach: 'I started with a mood study of the studio’s materials and light, then drew a leaf mark that echoes a lamp shade. A warm palette and a classic serif carry the same calm across every touchpoint.',
+      results: 'Enquiries rose after the rebrand and the studio now wins pitches on presentation alone.\nThe identity is used consistently across signage, social media and proposals.',
+      process: [{ title: 'Discover', text: 'Interviews and a review of the studio’s best rooms.' }, { title: 'Explore', text: 'Three logo directions, narrowed to one with the client.' }, { title: 'Build', text: 'Colour, type, patterns and usage rules.' }, { title: 'Hand off', text: 'A brand guide and ready to use files.' }],
+      quote: 'Victor gave us a brand we are proud to put on every project.', quoteName: 'Amaka Obi', quoteRole: 'Founder, Jovine Touch',
+    },
+    'kablux': {
+      client: 'Kablux', year: '2026', video: 'video/kablux.mp4',
+      wireframes: ['images/preview/kablux-wire-1.webp', 'images/preview/kablux-wire-2.webp', 'images/preview/kablux-wire-3.webp'],
+      mockups: ['images/preview/kablux-mock-1.webp', 'images/preview/kablux-mock-2.webp', 'images/preview/kablux-mock-3.webp'],
+      gallery: ['images/preview/kablux-gallery-1.webp', 'images/preview/kablux-gallery-2.webp', 'images/preview/kablux-gallery-3.webp'],
+      problem: 'Riders and fleet owners landed on a crowded page and did not know where to start. Most visitors left before signing up.',
+      approach: 'I split the site into two clear paths, one for riders and one for fleet owners, and rebuilt the page around a single action. A bold yellow and black system keeps it recognisable on any screen.',
+      results: 'Sign ups rose in the first month after launch.\nThe page now loads fast on mobile data and the team ships updates without design help.',
+      process: [{ title: 'Audit', text: 'Where visitors dropped off and why.' }, { title: 'Wireframe', text: 'Two journeys, one clear action each.' }, { title: 'Design', text: 'Desktop and mobile layouts in Figma.' }, { title: 'Handoff', text: 'Specs and assets for the developers.' }],
+      quote: 'The new website made our product easy to understand.', quoteName: 'Tunde Bakare', quoteRole: 'CEO, Kablux',
+    },
+    'jollof-game': {
+      client: 'Jollof Game', year: '2026', video: 'video/jollof-game.mp4',
+      wireframes: ['images/preview/jollof-game-wire-1.webp', 'images/preview/jollof-game-wire-2.webp', 'images/preview/jollof-game-wire-3.webp'],
+      mockups: ['images/preview/jollof-game-mock-1.webp', 'images/preview/jollof-game-mock-2.webp', 'images/preview/jollof-game-mock-3.webp'],
+      gallery: ['images/preview/jollof-game-gallery-1.webp', 'images/preview/jollof-game-gallery-2.webp', 'images/preview/jollof-game-gallery-3.webp'],
+      problem: 'Players had to tap through too many screens to reach a game, and the home screen gave no reason to come back.',
+      approach: 'I mapped the shortest path to play, then designed a home screen with one featured offer, quick game shelves and clear rewards. A clickable prototype let us test it with real players before any code.',
+      results: 'Players reach a game in two taps instead of five.\nThe prototype tests removed three confusing screens before development started.',
+      process: [{ title: 'Research', text: 'Studied how players move through similar apps.' }, { title: 'Flows', text: 'Mapped the shortest path to a game.' }, { title: 'Prototype', text: 'A clickable prototype tested with players.' }, { title: 'Handoff', text: 'Clean files and specs for the developers.' }],
+      quote: 'He turned a messy idea into a clear app flow.', quoteName: 'Ifeoma Nwosu', quoteRole: 'Product Lead, Jollof Game',
+    },
+  },
+}

@@ -102,6 +102,19 @@
     a.style.setProperty('--dur', `${base.length * 8}s`); b.style.setProperty('--dur', `${base.length * 9}s`)
   }
 
+  // Testimonials deck: each card has a picture side and a message side
+  const deckHtml = (list) => list.map((t, i) => {
+    const n = String(i + 1).padStart(2, '0')
+    return `<div class="dk" role="button" tabindex="0" aria-expanded="false" aria-label="${esc(t.name)}, read testimonial"><div class="dk-in"><div class="dk-f">${t.photo ? `<img src="${esc(t.photo)}" alt="" loading="lazy" draggable="false">` : `<span class="dk-ph">${esc((t.name || '?').slice(0, 1))}</span>`}<span class="dk-n">${n}</span><div class="dk-cap"><b>${esc(t.name)}</b><span>${esc(t.role)}</span></div><span class="dk-plus" aria-hidden="true"><i class="fa-solid fa-plus"></i></span></div><div class="dk-b" aria-hidden="true"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><blockquote>${esc(t.quote)}</blockquote><p><b>${esc(t.name)}</b><span>${esc(t.role)}</span></p><button type="button" class="dk-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div></div></div>`
+  }).join('') + (list.length ? '<a class="dk dk-you" href="./#contact"><span>You?</span><small>Be the next story</small></a>' : '')
+  // Two crossing strips. The words come from the services and roles saved in the admin.
+  function bands(d) {
+    const a = $('#band-a'), b = $('#band-b'); if (!a || !b) return
+    const sv = (d.services || []).map((s) => s.title).filter(Boolean), rl = list(d.roles)
+    const A = sv.length ? sv : ['Web Design', 'Development', 'Motion', 'Branding'], B = rl.length ? rl : A
+    const fillT = (items) => { const seg = items.map((t) => `<span>${esc(t)}</span><i aria-hidden="true"></i>`).join(''); return Array.from({ length: Math.max(4, Math.ceil(16 / items.length)) * 2 }, (_, i) => `<div class="seg"${i ? ' aria-hidden="true"' : ''}>${seg}</div>`).join('') }
+    a.innerHTML = fillT(A); b.innerHTML = fillT(B)
+  }
   function render(d, ready) {
     CUR = d
     $$('[data-f]').forEach((e) => (e.textContent = d[e.dataset.f] ?? ''))
@@ -123,8 +136,8 @@
     set('#steps', d.process.map((s) => `<li data-rv><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></li>`).join(''))
     set('#story', paras(d.aboutLong || d.about).map((t) => `<p class="lead story">${esc(t)}</p>`).join(''))
     const q = $('#testimonials')
-    if (q) { q.hidden = !d.testimonials.length; set('#quotes', d.testimonials.map((t) => `<figure class="quote"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><blockquote>${esc(t.quote)}</blockquote><figcaption>${t.photo ? `<img class="q-photo" src="${esc(t.photo)}" alt="${esc(t.name)}" loading="lazy" width="72" height="72">` : ''}<div><b>${esc(t.name)}</b><span>${esc(t.role)}</span></div></figcaption></figure>`).join('')) }
-    const qc = $('#qctl'); if (qc) qc.hidden = d.testimonials.length < 2
+    if (q) { q.hidden = !d.testimonials.length; set('#deck', deckHtml(d.testimonials)) }
+    bands(d)
     if ($('#p-main')) renderProject(d, ready)
     fixLinks()
   }
@@ -160,7 +173,7 @@
     set('#p-case', cs.map(([k, t], n) => `<article class="case-c" data-rv><small>${String(n + 1).padStart(2, '0')}</small><h3>${k}</h3>${paras(t).map((x) => `<p>${esc(x)}</p>`).join('')}</article>`).join(''))
     const wf = (p.wireframes || []).filter(Boolean)
     $('#p-wire-wrap').hidden = !wf.length
-    set('#p-wire', wf.map((s) => `<img data-rv data-par src="${esc(s)}" alt="${esc(p.title)} wireframe" loading="lazy">`).join(''))
+    set('#p-wire', wf.map((s) => `<img class="wf" src="${esc(s)}" alt="${esc(p.title)} wireframe" loading="lazy">`).join(''))
     const mk = (p.mockups || []).filter(Boolean)
     $('#p-mock-wrap').hidden = !mk.length
     set('#p-mock', mk.map((s) => `<img data-rv data-par src="${esc(s)}" alt="${esc(p.title)} mockup" loading="lazy">`).join(''))
@@ -197,6 +210,20 @@
   const norm = (x) => ({ slug: x.slug, title: x.title, category: x.category || '', summary: x.summary || '', description: x.description || '', client: x.client || '', role: x.role || '', year: x.year || '', tools: x.tools || [], link: x.link || '', src: x.cover_url || '', gallery: x.gallery || [], video: x.video_url || '', mockups: x.mockups || [], wireframes: x.wireframes || [], problem: x.problem || '', approach: x.approach || '', results: x.results || '', process: stepsOf(x.process), quote: x.quote || '', quoteName: x.quote_name || '', quoteRole: x.quote_role || '' })
   const TEXT = ['name', 'brand', 'role', 'roles', 'location', 'phone', 'heroTitle', 'heroText', 'email', 'about', 'aboutLong', 'heroSrc', 'servicesSrc', 'contactSrc', 'portraitSrc']
   const LISTS = ['process', 'testimonials', 'services', 'tools']
+  // Sample content from js/preview.js. It only fills what is empty, so anything saved in the admin always wins.
+  const PV = window.SITE_PREVIEW
+  const fill = (d) => {
+    if (!PV || PV.enabled === false) return d
+    const o = { ...d }
+    if (!(o.testimonials || []).length) o.testimonials = PV.testimonials || []
+    o.projects = (o.projects || []).map((p) => {
+      const x = PV.projects && PV.projects[p.slug]; if (!x) return p
+      const q = { ...p }
+      Object.keys(x).forEach((k) => { const v = q[k]; if (v == null || v === '' || (Array.isArray(v) && !v.length)) q[k] = x[k] })
+      return q
+    })
+    return o
+  }
   function merge(res) {
     const d = { ...D }, s = res.site || {}
     TEXT.forEach((k) => { if (typeof s[k] === 'string' && s[k].trim()) d[k] = s[k] })
@@ -227,36 +254,37 @@
       .from('.dock', { y: 110, opacity: 0, duration: 1, ease: 'back.out(1.4)' }, 1.3)
   }
 
-  // Testimonials slider: swipe on touch, drag with the mouse, use the arrows, or let it advance by itself
+  // Testimonials deck: click or press Enter to flip a card, Escape or the cross to flip back
+  let deckApi = null
   ;(function () {
-    const tr = $('#quotes'); if (!tr) return
-    const AUTO_MS = 5000
-    const step = () => { const c = tr.querySelector('.quote'); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(tr).columnGap || 0) : tr.clientWidth }
-    const max = () => tr.scrollWidth - tr.clientWidth
-    const go = (dir) => {
-      if (dir > 0 && tr.scrollLeft >= max() - 4) tr.scrollTo({ left: 0, behavior: 'smooth' })
-      else if (dir < 0 && tr.scrollLeft <= 4) tr.scrollTo({ left: max(), behavior: 'smooth' })
-      else tr.scrollBy({ left: dir * step(), behavior: 'smooth' })
+    const root = $('#deck'); if (!root) return
+    const toggle = (card, on) => {
+      if (!card || card.classList.contains('dk-you')) return
+      if (on) root.querySelectorAll('.dk.open').forEach((c) => c !== card && toggle(c, false))
+      card.classList.toggle('open', on); card.setAttribute('aria-expanded', on); card.querySelector('.dk-b').setAttribute('aria-hidden', !on)
+      if (deckApi) deckApi.lift(card, on)
     }
-    let hold = 0, hover = false, seen = false
-    const touch = () => { hold = Date.now() + AUTO_MS * 1.6 }
-    document.addEventListener('click', (e) => { const b = e.target.closest?.('.qbtn'); if (b) { touch(); go(+b.dataset.q) } })
-    tr.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); touch(); go(e.key === 'ArrowRight' ? 1 : -1) } })
-    tr.addEventListener('touchstart', touch, { passive: true })
-    tr.addEventListener('mouseenter', () => { hover = true }); tr.addEventListener('mouseleave', () => { hover = false })
-    let down = null, moved = 0
-    tr.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; touch(); down = { x: e.clientX, l: tr.scrollLeft }; moved = 0; tr.classList.add('drag') })
-    addEventListener('pointermove', (e) => { if (!down) return; moved = e.clientX - down.x; tr.scrollLeft = down.l - moved })
-    addEventListener('pointerup', () => { if (!down) return; down = null; tr.classList.remove('drag'); touch(); const s = step(); tr.scrollTo({ left: Math.round(tr.scrollLeft / s) * s, behavior: 'smooth' }) })
-    if ('IntersectionObserver' in window) new IntersectionObserver((en) => { seen = en[0].isIntersecting }).observe(tr); else seen = true
-    if (!reduced) setInterval(() => { if (!seen || hover || document.hidden || Date.now() < hold || max() < 8) return; go(1) }, AUTO_MS)
+    root.addEventListener('click', (e) => { const c = e.target.closest('.dk'); if (!c || c.classList.contains('dk-you')) return; toggle(c, e.target.closest('.dk-x') ? false : !c.classList.contains('open')) })
+    root.addEventListener('keydown', (e) => { const c = e.target.closest('.dk'); if (!c) return; if (e.key === 'Enter' || e.key === ' ') { if (e.target.closest('.dk-x')) return; e.preventDefault(); toggle(c, !c.classList.contains('open')) } else if (e.key === 'Escape') toggle(c, false) })
+    // Auto next: once the deck is dealt, the cards flip one after another. It waits while someone is touching, hovering or reading.
+    let hold = 0, hover = false, k = -1
+    const touch = () => { hold = Date.now() + 9000 }
+    root.addEventListener('click', touch); root.addEventListener('touchstart', touch, { passive: true }); root.addEventListener('keydown', touch)
+    root.addEventListener('mouseenter', () => { hover = true }); root.addEventListener('mouseleave', () => { hover = false })
+    if (!reduced) setInterval(() => {
+      if (!deckApi || !deckApi.dealt() || hover || document.hidden || Date.now() < hold || root.contains(document.activeElement) && document.activeElement !== document.body) return
+      const cs = [...root.querySelectorAll('.dk:not(.dk-you)')]; if (!cs.length) return
+      const open = root.querySelector('.dk.open'); k = open ? cs.indexOf(open) + 1 : k + 1; if (k >= cs.length) { k = -1; if (open) toggle(open, false); return }
+      toggle(cs[k], true)
+    }, 4500)
+    document.addEventListener('deck-close', () => root.querySelectorAll('.dk.open').forEach((c) => toggle(c, false)))
   })()
 
   function motion() {
     kill()
     const g = window.gsap
     if (!g || !window.ScrollTrigger || !window.Lenis || reduced) return
-    g.registerPlugin(ScrollTrigger)
+    g.registerPlugin(ScrollTrigger); g.config({ nullTargetWarn: false })
     if (!heroDone && $('[data-hero]')) { intro(g); heroDone = true }
     const lenis = new Lenis(), tick = (t) => lenis.raf(t * 1000)
     L = lenis
@@ -284,15 +312,49 @@
         })
       }
 
-      // Testimonials: the cards arrive tilted and settle flat, and lean a little with the swipe
-      const qs = g.utils.toArray('#quotes .quote')
-      if (qs.length) {
-        g.set(qs, { opacity: 0, y: small ? 40 : 70, rotate: (i) => (i % 2 ? 4 : -4), transformOrigin: '50% 100%' })
-        ScrollTrigger.create({ trigger: '#quotes', start: small ? 'top 92%' : 'top 85%', once: true, onEnter: () => g.to(qs, { opacity: 1, y: 0, rotate: 0, duration: 1.2, ease: 'expo.out', stagger: 0.14 }) })
-        const tr = $('#quotes'); let last = tr.scrollLeft
-        const lean = g.quickTo(qs, 'rotate', { duration: 0.5, ease: 'power3.out' })
-        const settle = g.delayedCall(0.12, () => lean(0)); settle.pause()
-        tr.addEventListener('scroll', () => { const v = tr.scrollLeft - last; last = tr.scrollLeft; lean(Math.max(-3, Math.min(3, v * 0.12))); settle.restart(true) }, { passive: true })
+      // Testimonials: scrolling deals a stacked deck into a fan, one card after another
+      const dk = g.utils.toArray('#deck .dk'), dsec = $('#testimonials')
+      if (dk.length && dsec && !dsec.hidden) {
+        const n = dk.length, step = small ? Math.min(6.5, 34 / n) : Math.min(12, 70 / n), R = small ? '200%' : '300%'
+        dsec.classList.add('live'); dsec.style.height = (innerHeight * (small ? 2.2 : 2.5)) + 'px'
+        const pose = (i, e) => { const c = (n - 1) / 2, fan = (i - c) * step, st = ((i % 3) - 1) * 2.2; return { rotation: st + (fan - st) * e, x: ((i % 2) * 2 - 1) * 3 * (1 - e), y: (1 - e) * (i % 3) * 2 } }
+        const ease = (t) => 1 - Math.pow(1 - t, 3)
+        let cur = 0
+        const update = (p) => {
+          cur = p
+          const pp = Math.min(1, p / 0.78)
+          dk.forEach((c, i) => { if (c.classList.contains('open')) return; const e = ease(Math.max(0, Math.min(1, (pp * (n + 3) - i) / 4))); g.set(c, { ...pose(i, e), transformOrigin: `50% ${R}` }) })
+          g.set('#deck-tip', { opacity: Math.max(0, Math.min(1, (p - 0.55) * 5)) })
+        }
+        g.set(dk, { transformOrigin: `50% ${R}` })
+        update(0)
+        ScrollTrigger.create({ trigger: dsec, start: 'top top', end: 'bottom bottom', onUpdate: (s) => { if (Math.abs(s.progress - cur) > 0.004) document.dispatchEvent(new Event('deck-close')); update(s.progress) } })
+        deckApi = { dealt: () => { const r = dsec.getBoundingClientRect(); return cur > 0.8 && r.top <= 0 && r.bottom >= innerHeight * 0.6 }, lift(c, on) { const i = dk.indexOf(c); if (on) g.to(c, { rotation: 0, x: 0, y: small ? -10 : -26, duration: 0.7, ease: 'expo.out', overwrite: 'auto' }); else g.to(c, { ...pose(i, ease(Math.max(0, Math.min(1, (Math.min(1, cur / 0.78) * (n + 3) - i) / 4)))), duration: 0.6, ease: 'expo.out', overwrite: 'auto' }) } }
+        // The FLIP cursor follows the mouse over the cards (mouse only)
+        if (matchMedia('(hover: hover)').matches) {
+          const cur2 = document.createElement('div'); cur2.className = 'flipcur'; cur2.setAttribute('aria-hidden', 'true'); cur2.textContent = 'FLIP'; document.body.appendChild(cur2)
+          const mx = g.quickTo(cur2, 'x', { duration: 0.35, ease: 'power3.out' }), my = g.quickTo(cur2, 'y', { duration: 0.35, ease: 'power3.out' })
+          const stage = $('#deck')
+          stage.addEventListener('pointermove', (e) => { mx(e.clientX); my(e.clientY); const c = e.target.closest('.dk'); cur2.classList.toggle('on', !!c && !c.classList.contains('dk-you')); cur2.textContent = c && c.classList.contains('open') ? 'BACK' : 'FLIP' })
+          stage.addEventListener('pointerleave', () => cur2.classList.remove('on'))
+        }
+      }
+
+      // The two strips drift sideways and straighten a little as you scroll past
+      if ($('.bands')) { g.fromTo('.band-a', { rotate: -5 }, { rotate: -3, ease: 'none', scrollTrigger: { trigger: '.bands', start: 'top bottom', end: 'bottom top', scrub: true } }); g.fromTo('.band-b', { rotate: 4 }, { rotate: 2, ease: 'none', scrollTrigger: { trigger: '.bands', start: 'top bottom', end: 'bottom top', scrub: true } }) }
+
+      // Wireframes pop in from the left and the right with a tilt, then settle in their own place and stay there
+      g.utils.toArray('#p-wire .wf').forEach((el, i) => {
+        g.set(el, { x: (i % 2 ? 1 : -1) * (small ? 90 : 260), rotate: (i % 2 ? 1 : -1) * 7, scale: 0.9, opacity: 0 })
+        ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => g.to(el, { x: 0, rotate: 0, scale: 1, opacity: 1, duration: 1.2, ease: 'back.out(1.25)' }) })
+      })
+
+      // Everything else rises into view as you scroll: headings, text, steps, tools, results, images and the footer
+      const rise = g.utils.toArray('.block > h2, .block > .lead, .trust, .contact h2, .form, .proj-top > *, .proj-text > *, .case > *, .about-top > div > *, .steps li:not([data-rv]), .mock > *, .gallery > *, .foot-top > *, .foot-bottom')
+        .filter((el) => !el.hasAttribute('data-rv') && !el.hasAttribute('data-depth') && !el.hasAttribute('data-par') && !el.closest('[data-rv]') && !el.closest('#home') && !el.closest('#testimonials'))
+      if (rise.length) {
+        g.set(rise, { opacity: 0, y: small ? 28 : 46 })
+        ScrollTrigger.batch(rise, { start: small ? 'top 96%' : 'top 92%', once: true, onEnter: (b) => g.to(b, { opacity: 1, y: 0, duration: 1.05, ease: 'power3.out', stagger: 0.09, overwrite: true }) })
       }
 
       // Wireframes and mockups drift slightly against the scroll, so the page feels alive
@@ -304,7 +366,7 @@
       // Portrait, project cover and gallery images tilt flat as they arrive
       g.utils.toArray('[data-depth]').forEach((el) => g.fromTo(el, { rotateX: small ? 4 : 8, y: 40, opacity: 0.4, transformPerspective: 2000, transformOrigin: '50% 100%' }, { rotateX: 0, y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 98%', end: 'top 50%', scrub: true } }))
     })
-    kill = () => { ctx.revert(); g.ticker.remove(tick); lenis.destroy(); L = null }
+    kill = () => { ctx.revert(); g.ticker.remove(tick); lenis.destroy(); L = null; deckApi = null; $$('.flipcur').forEach((x) => x.remove()); const ds = $('#testimonials'); if (ds) { ds.classList.remove('live'); ds.style.height = '' } }
   }
 
   // Back to top
@@ -350,7 +412,7 @@
   // The hero stays pinned while the page slides over it. If it is taller than the screen, it pins by its bottom edge.
   const pinHero = () => { const h = $('#home'); if (h) h.style.top = Math.min(0, innerHeight - h.offsetHeight) + 'px' }
   addEventListener('resize', pinHero); addEventListener('load', pinHero)
-  const paint = (d) => { render(d, true); pinHero(); motion(); show(); setTimeout(pinHero, 600) }
+  const paint = (d) => { render(fill(d), true); pinHero(); motion(); show(); setTimeout(pinHero, 600) }
   if (!$('#p-main')) canon(location.pathname.split('/').pop().replace(/\.html$/, '') === 'about' ? 'about' : '')
   if (!hasRemote) paint(D)
   else {

@@ -1,5 +1,5 @@
 window.SITE_CONFIG = {
-  siteUrl: 'https://vikkreative.com',
+  siteUrl: '', // set to https://vikkreative.com (no slash at the end) once the domain works
   supabaseUrl: 'https://bmlgxcdhruticmvigbqe.supabase.co',
   supabaseAnonKey: 'sb_publishable_ARrCbURYXNO1WFXaM5gIDQ_49Wwo2g5',
   web3formsKey: '',
@@ -69,7 +69,7 @@ window.SITE = {
   servicesSrc: 'images/services.webp',
   contactSrc: 'images/contact.webp',
   portraitSrc: 'images/portrait.webp',
-  email: 'supportdoc11@gmail.com',
+  email: 'ibrahimvictor2001@gmail.com',
   about: 'I am a product and visual designer with several years of experience shipping fintech, entertainment, e-commerce and brand identity work. I care about clear structure, fast interfaces and details that make a first-time visitor feel safe.',
   aboutLong: 'I started designing because I wanted software that feels obvious to use. Since then I have worked on fintech wallets, entertainment apps, e-commerce stores and brand identities for businesses at different stages.\n\nI work closely with founders and developers, so what I design is something a team can actually build and ship. Replace this text with your own story in the admin.',
   process: [
